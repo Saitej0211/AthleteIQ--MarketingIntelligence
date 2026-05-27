@@ -48,9 +48,13 @@ class BrandPowerInputs:
     # Social reach — raw follower counts per platform
     instagram_followers: int = 0
     youtube_subscribers: int = 0
+    tiktok_followers:    int = 0
+    twitter_followers:   int = 0
+    facebook_followers:  int = 0
 
     # Engagement — rates in percent (e.g. 3.2 means 3.2%)
     instagram_engagement_pct: float = 0.0
+    tiktok_engagement_pct:    float = 0.0
     youtube_avg_views:        int   = 0
 
     # Trends
@@ -77,30 +81,40 @@ class BrandPowerResult:
 
 
 def _social_reach_score(inputs: BrandPowerInputs) -> float:
+    # Cross-platform reach: weight each platform by audience quality
+    # Instagram × 1.0, YouTube × 1.0, TikTok × 0.8, Twitter × 0.7, Facebook × 0.6
     total = (
-        inputs.instagram_followers
-        + inputs.youtube_subscribers
+        inputs.instagram_followers       * 1.0
+        + inputs.youtube_subscribers     * 1.0
+        + inputs.tiktok_followers        * 0.8
+        + inputs.twitter_followers       * 0.7
+        + inputs.facebook_followers      * 0.6
     )
-    # Log scale: 10M → ~70, 100M → 100
+    # Log scale: ceiling = 600M weighted reach (e.g. Neymar/Kohli all-platform)
     if total <= 0:
         return 0.0
-    score = min(100.0, (math.log10(total + 1) / math.log10(200_000_000)) * 100)
+    score = min(100.0, (math.log10(total + 1) / math.log10(600_000_000)) * 100)
     return round(score, 2)
 
 
 def _engagement_quality_score(inputs: BrandPowerInputs) -> float:
     scores = []
 
-    # Instagram: benchmark 1% = average, 5%+ = excellent
+    # Instagram: benchmark 1% = average, 5%+ = excellent (highest weight)
     if inputs.instagram_engagement_pct > 0:
         ig_score = min(100.0, (inputs.instagram_engagement_pct / 5.0) * 100)
-        scores.append((ig_score, 0.6))
+        scores.append((ig_score, 0.45))
+
+    # TikTok: benchmark 2% = average, 8%+ = excellent (viral potential)
+    if inputs.tiktok_engagement_pct > 0:
+        tt_score = min(100.0, (inputs.tiktok_engagement_pct / 8.0) * 100)
+        scores.append((tt_score, 0.25))
 
     # YouTube avg views relative to subscribers
     if inputs.youtube_subscribers > 0 and inputs.youtube_avg_views > 0:
         view_rate = inputs.youtube_avg_views / inputs.youtube_subscribers
         yt_score = min(100.0, (view_rate / 0.05) * 100)
-        scores.append((yt_score, 0.4))
+        scores.append((yt_score, 0.30))
 
     if not scores:
         return 0.0
@@ -190,8 +204,11 @@ def build_inputs_from_cache(athlete_slug: str) -> BrandPowerInputs:
     from utils.helpers import load_json
     from config.settings import SOCIAL_DIR, TRENDS_DIR, SPONSORSHIPS_DIR, PROFILES_DIR
 
-    ig    = load_json(SOCIAL_DIR / "instagram" / f"{athlete_slug}.json") or {}
-    yt    = load_json(SOCIAL_DIR / "youtube"   / f"{athlete_slug}.json") or {}
+    ig   = load_json(SOCIAL_DIR / "instagram" / f"{athlete_slug}.json") or {}
+    yt   = load_json(SOCIAL_DIR / "youtube"   / f"{athlete_slug}.json") or {}
+    tt   = load_json(SOCIAL_DIR / "tiktok"    / f"{athlete_slug}.json") or {}
+    tw   = load_json(SOCIAL_DIR / "twitter"   / f"{athlete_slug}.json") or {}
+    fb   = load_json(SOCIAL_DIR / "facebook"  / f"{athlete_slug}.json") or {}
     trend = load_json(TRENDS_DIR              / f"{athlete_slug}.json") or {}
     spon  = load_json(SPONSORSHIPS_DIR        / f"{athlete_slug}.json") or {}
     prof  = load_json(PROFILES_DIR            / f"{athlete_slug}.json") or {}
@@ -213,7 +230,11 @@ def build_inputs_from_cache(athlete_slug: str) -> BrandPowerInputs:
     return BrandPowerInputs(
         instagram_followers=      ig.get("followers", 0),
         youtube_subscribers=      yt.get("subscribers", 0),
+        tiktok_followers=         tt.get("followers", 0),
+        twitter_followers=        tw.get("followers", 0),
+        facebook_followers=       fb.get("followers", 0),
         instagram_engagement_pct= ig.get("engagement_rate_pct", 0.0),
+        tiktok_engagement_pct=    tt.get("engagement_rate_pct", 0.0),
         youtube_avg_views=        yt.get("avg_views_per_video", 0),
         google_trends_avg=        trend.get("interest_score_avg", 0.0),
         sponsors=                 spon.get("sponsors", []),

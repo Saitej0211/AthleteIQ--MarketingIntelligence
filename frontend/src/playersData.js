@@ -34,14 +34,25 @@ export const ALL_PLAYERS = [
     "trend_dir": "declining",
     "market_value": 140,
     "sub": {
-      "social": 91.7,
+      "social": 88.3,
       "eng": 100,
       "trend": 43.6,
       "spon": 39,
       "val": 77.8
     },
-    "sponsors": ["Adidas", "BMW", "IWC"],
-    "featured": false
+    "sponsors": [
+      "Adidas",
+      "BMW",
+      "IWC",
+      "Cadbury"
+    ],
+    "featured": false,
+    "tt": 12300000,
+    "tw": 5200000,
+    "fb": 3100000,
+    "deal_val": 25,
+    "age": 22,
+    "titles": "La Liga 2024 · UCL 2024 · Bundesliga 2023"
   },
   {
     "slug": "erling_haaland",
@@ -63,14 +74,25 @@ export const ALL_PLAYERS = [
     "trend_dir": "rising",
     "market_value": 200,
     "sub": {
-      "social": 90.5,
+      "social": 88.1,
       "eng": 76,
       "trend": 46.9,
       "spon": 36,
       "val": 100
     },
-    "sponsors": ["Nike", "CCC", "Hyperice", "Breitling"],
-    "featured": false
+    "sponsors": [
+      "Nike",
+      "Hyperice",
+      "Breitling",
+      "Nespresso"
+    ],
+    "featured": false,
+    "tt": 18200000,
+    "tw": 3100000,
+    "fb": 8200000,
+    "deal_val": 30,
+    "age": 25,
+    "titles": "UCL 2023 · Premier League 2023 · Bundesliga ×3"
   },
   {
     "slug": "vinícius_júnior",
@@ -92,14 +114,24 @@ export const ALL_PLAYERS = [
     "trend_dir": "rising",
     "market_value": 150,
     "sub": {
-      "social": 93.2,
+      "social": 90.4,
       "eng": 100,
       "trend": 35.6,
       "spon": 0,
       "val": 83.3
     },
-    "sponsors": [],
-    "featured": false
+    "sponsors": [
+      "Nike",
+      "Red Bull",
+      "Spotify"
+    ],
+    "featured": false,
+    "tt": 22500000,
+    "tw": 8400000,
+    "fb": 12400000,
+    "deal_val": 22,
+    "age": 25,
+    "titles": "UCL 2022 & 2024 · La Liga ×2 · Copa del Rey"
   },
   {
     "slug": "carlos_alcaraz",
@@ -121,14 +153,25 @@ export const ALL_PLAYERS = [
     "trend_dir": "declining",
     "market_value": 0,
     "sub": {
-      "social": 83.6,
+      "social": 82.5,
       "eng": 100,
       "trend": 28.5,
       "spon": 80,
       "val": 0
     },
-    "sponsors": ["Nike, Inc.", "Babolat", "Rolex", "Calvin Klein (fashion house)"],
-    "featured": false
+    "sponsors": [
+      "Nike",
+      "Babolat",
+      "Rolex",
+      "Louis Vuitton"
+    ],
+    "featured": false,
+    "tt": 7400000,
+    "tw": 2100000,
+    "fb": 2100000,
+    "deal_val": 25,
+    "age": 23,
+    "titles": "Wimbledon ×2 · Roland Garros 2024 · US Open 2022"
   },
   {
     "slug": "pedri",
@@ -150,14 +193,23 @@ export const ALL_PLAYERS = [
     "trend_dir": "stable",
     "market_value": 150,
     "sub": {
-      "social": 88.5,
+      "social": 85.8,
       "eng": 84.5,
       "trend": 43,
       "spon": 0,
       "val": 83.3
     },
-    "sponsors": [],
-    "featured": false
+    "sponsors": [
+      "Nike",
+      "Gillette"
+    ],
+    "featured": false,
+    "tt": 8200000,
+    "tw": 3200000,
+    "fb": 5200000,
+    "deal_val": 5,
+    "age": 23,
+    "titles": "La Liga 2025 · Copa del Rey 2025 · Euro 2021 Silver"
   },
   {
     "slug": "charles_leclerc",
@@ -179,14 +231,25 @@ export const ALL_PLAYERS = [
     "trend_dir": "stable",
     "market_value": 0,
     "sub": {
-      "social": 89.2,
+      "social": 86.0,
       "eng": 100,
       "trend": 0,
       "spon": 80,
       "val": 0
     },
-    "sponsors": ["luxury watch", "Richard Mille", "kart racing", "junior formulae"],
-    "featured": false
+    "sponsors": [
+      "Richard Mille",
+      "Rolex",
+      "Bvlgari",
+      "Ray-Ban"
+    ],
+    "featured": false,
+    "tt": 5100000,
+    "tw": 6100000,
+    "fb": 4100000,
+    "deal_val": 15,
+    "age": 28,
+    "titles": "Monaco GP 2024 · 25 Pole Positions · Ferrari Ace"
   },
   {
     "slug": "daniil_medvedev",
@@ -208,14 +271,25 @@ export const ALL_PLAYERS = [
     "trend_dir": "stable",
     "market_value": 0,
     "sub": {
-      "social": 77.8,
+      "social": 77.1,
       "eng": 100,
       "trend": 20.9,
       "spon": 64,
       "val": 0
     },
-    "sponsors": ["Lacoste", "Tecnifibre", "Bovet Fleurier", "BMW"],
-    "featured": false
+    "sponsors": [
+      "Lacoste",
+      "Tecnifibre",
+      "BMW",
+      "Bovet Fleurier"
+    ],
+    "featured": false,
+    "tt": 1600000,
+    "tw": 1480000,
+    "fb": 1050000,
+    "deal_val": 12,
+    "age": 30,
+    "titles": "US Open 2021 · ATP Finals ×2 · ATP World No.1"
   },
   {
     "slug": "jayson_tatum",
@@ -237,14 +311,24 @@ export const ALL_PLAYERS = [
     "trend_dir": "rising",
     "market_value": 0,
     "sub": {
-      "social": 84.6,
+      "social": 82.4,
       "eng": 83.2,
       "trend": 23.6,
       "spon": 80,
       "val": 0
     },
-    "sponsors": ["Imo's Pizza", "Jordan Brand", "Sole Retriever", "Subway (restaurant)"],
-    "featured": false
+    "sponsors": [
+      "Jordan Brand",
+      "Subway",
+      "State Farm"
+    ],
+    "featured": false,
+    "tt": 3100000,
+    "tw": 4200000,
+    "fb": 2200000,
+    "deal_val": 12,
+    "age": 28,
+    "titles": "NBA Champion 2024 · All-Star ×5 · Olympic Gold 2024"
   },
   {
     "slug": "luka_dončić",
@@ -266,14 +350,24 @@ export const ALL_PLAYERS = [
     "trend_dir": "rising",
     "market_value": 0,
     "sub": {
-      "social": 86.5,
+      "social": 84.9,
       "eng": 98.8,
       "trend": 43.5,
       "spon": 0,
       "val": 0
     },
-    "sponsors": [],
-    "featured": false
+    "sponsors": [
+      "Jordan Brand",
+      "Panini",
+      "Sportradar"
+    ],
+    "featured": false,
+    "tt": 9100000,
+    "tw": 5100000,
+    "fb": 4200000,
+    "deal_val": 15,
+    "age": 27,
+    "titles": "NBA Champion 2024 · EuroLeague 2018 · MVP ×4"
   },
   {
     "slug": "rodri",
@@ -284,7 +378,7 @@ export const ALL_PLAYERS = [
     "nationality": "Spanish",
     "position": "Midfielder",
     "bio": "Rodrigo Hernández Cascante, known as Rodri or Rodrigo, is a Spanish professional footballer who plays as a defensive midfielder for Premier League club Manchester City and captains the Spain national team. Known for his",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/RODRI_-_SWE_vs_ESP_-_UEFA_EURO_2020_QUALIFIERS_-_2019.10.15_%28cropped%29.jpg/400px-RODRI_-_SWE_vs_ESP_-_UEFA_EURO_2020_QUALIFIERS_-_2019.10.15_%28cropped%29.jpg",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/RODRI_-_SWE_vs_ESP_-_UEFA_EURO_2020_QUALIFIERS_-_2019.10.15_%28cropped%29.jpg/500px-RODRI_-_SWE_vs_ESP_-_UEFA_EURO_2020_QUALIFIERS_-_2019.10.15_%28cropped%29.jpg",
     "brand_score": 57.6,
     "tier": "Major Star",
     "ig": 8200000,
@@ -295,14 +389,23 @@ export const ALL_PLAYERS = [
     "trend_dir": "stable",
     "market_value": 65,
     "sub": {
-      "social": 83.3,
+      "social": 81.2,
       "eng": 77.2,
       "trend": 49.9,
       "spon": 0,
       "val": 36.1
     },
-    "sponsors": [],
-    "featured": false
+    "sponsors": [
+      "Adidas",
+      "Santander"
+    ],
+    "featured": false,
+    "tt": 3400000,
+    "tw": 2100000,
+    "fb": 1500000,
+    "deal_val": 4,
+    "age": 29,
+    "titles": "Ballon d'Or 2024 · UCL 2023 · Euro 2024"
   },
   {
     "slug": "kylian_mbappé",
@@ -324,14 +427,26 @@ export const ALL_PLAYERS = [
     "trend_dir": "rising",
     "market_value": 200,
     "sub": {
-      "social": 97.8,
+      "social": 94.4,
       "eng": 51.3,
       "trend": 37.5,
       "spon": 0,
       "val": 100
     },
-    "sponsors": [],
-    "featured": true
+    "sponsors": [
+      "Nike",
+      "Hublot",
+      "EA Sports",
+      "Dior",
+      "Oakley"
+    ],
+    "featured": true,
+    "tt": 28000000,
+    "tw": 15200000,
+    "fb": 50000000,
+    "deal_val": 55,
+    "age": 27,
+    "titles": "World Cup 2018 · UCL 2024 · Ligue 1 ×7"
   },
   {
     "slug": "virat_kohli",
@@ -353,14 +468,26 @@ export const ALL_PLAYERS = [
     "trend_dir": "rising",
     "market_value": 0,
     "sub": {
-      "social": 100,
+      "social": 97.4,
       "eng": 59.4,
       "trend": 27.4,
       "spon": 59,
       "val": 0
     },
-    "sponsors": ["Puma", "MRF", "Audi", "Boost"],
-    "featured": false
+    "sponsors": [
+      "Puma",
+      "MRF",
+      "Audi",
+      "Boost",
+      "American Tourister"
+    ],
+    "featured": false,
+    "tt": 15300000,
+    "tw": 58200000,
+    "fb": 50000000,
+    "deal_val": 35,
+    "age": 37,
+    "titles": "T20 WC 2024 · ICC WC 2011 · 100 Int'l Centuries"
   },
   {
     "slug": "kevin_durant",
@@ -371,7 +498,7 @@ export const ALL_PLAYERS = [
     "nationality": "American",
     "position": "Forward",
     "bio": "Kevin Wayne Durant, also known by his initials KD, is an American professional basketball player for the Houston Rockets of the National Basketball Association (NBA). Nicknamed \"the Slim Reaper\", he is widely regarded",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Kevin_Durant%2C_Paris_2024_%28cropped%29.jpg/400px-Kevin_Durant%2C_Paris_2024_%28cropped%29.jpg",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Kevin_Durant%2C_Paris_2024_%28cropped%29.jpg/500px-Kevin_Durant%2C_Paris_2024_%28cropped%29.jpg",
     "brand_score": 56,
     "tier": "Major Star",
     "ig": 13366705,
@@ -382,14 +509,25 @@ export const ALL_PLAYERS = [
     "trend_dir": "stable",
     "market_value": 0,
     "sub": {
-      "social": 85.8,
+      "social": 86.1,
       "eng": 100,
       "trend": 22.7,
       "spon": 0,
       "val": 0
     },
-    "sponsors": [],
-    "featured": false
+    "sponsors": [
+      "Nike",
+      "Gatorade",
+      "Alaska Airlines",
+      "Coinbase"
+    ],
+    "featured": false,
+    "tt": 6200000,
+    "tw": 16400000,
+    "fb": 10200000,
+    "deal_val": 25,
+    "age": 37,
+    "titles": "NBA Champion ×2 · Finals MVP ×2 · Olympic Gold ×3"
   },
   {
     "slug": "jannik_sinner",
@@ -411,14 +549,25 @@ export const ALL_PLAYERS = [
     "trend_dir": "declining",
     "market_value": 0,
     "sub": {
-      "social": 81.3,
+      "social": 80.4,
       "eng": 100,
       "trend": 27.7,
       "spon": 0,
       "val": 0
     },
-    "sponsors": [],
-    "featured": false
+    "sponsors": [
+      "Nike",
+      "Babolat",
+      "Rolex",
+      "Swarovski"
+    ],
+    "featured": false,
+    "tt": 4600000,
+    "tw": 1560000,
+    "fb": 1500000,
+    "deal_val": 15,
+    "age": 24,
+    "titles": "Australian Open ×2 · US Open 2024 · ATP World No.1"
   },
   {
     "slug": "taylor_fritz",
@@ -440,14 +589,24 @@ export const ALL_PLAYERS = [
     "trend_dir": "declining",
     "market_value": 0,
     "sub": {
-      "social": 71.2,
+      "social": 71.8,
       "eng": 90.4,
       "trend": 13,
       "spon": 56,
       "val": 0
     },
-    "sponsors": ["Hugo Boss", "Nike, Inc.", "ASICS", "Head (company)"],
-    "featured": false
+    "sponsors": [
+      "Hugo Boss",
+      "Head",
+      "Rolex"
+    ],
+    "featured": false,
+    "tt": 820000,
+    "tw": 480000,
+    "fb": 310000,
+    "deal_val": 6,
+    "age": 28,
+    "titles": "Indian Wells 2022 · ATP Top 5 · Davis Cup"
   },
   {
     "slug": "alexander_zverev",
@@ -458,7 +617,7 @@ export const ALL_PLAYERS = [
     "nationality": "German",
     "position": "Singles",
     "bio": "Alexander \"Sascha\" Zverev is a German professional tennis player and the current world No. 3. He has been ranked as high as world No. 2 in men's singles by the Association of Tennis Professionals (ATP), achieved in June",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Alexander_Zverev.jpg/400px-Alexander_Zverev.jpg",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Alexander_Zverev.jpg/500px-Alexander_Zverev.jpg",
     "brand_score": 54.4,
     "tier": "Rising Brand",
     "ig": 3100000,
@@ -469,14 +628,25 @@ export const ALL_PLAYERS = [
     "trend_dir": "stable",
     "market_value": 0,
     "sub": {
-      "social": 78.2,
+      "social": 77.6,
       "eng": 96.4,
       "trend": 29.4,
       "spon": 0,
       "val": 0
     },
-    "sponsors": [],
-    "featured": false
+    "sponsors": [
+      "Adidas",
+      "Head",
+      "Rolex",
+      "Porsche"
+    ],
+    "featured": false,
+    "tt": 2100000,
+    "tw": 1520000,
+    "fb": 1100000,
+    "deal_val": 15,
+    "age": 29,
+    "titles": "Roland Garros 2025 · Olympic Gold 2020 · ATP Finals ×3"
   },
   {
     "slug": "nikola_jokić",
@@ -498,14 +668,23 @@ export const ALL_PLAYERS = [
     "trend_dir": "rising",
     "market_value": 0,
     "sub": {
-      "social": 76.2,
+      "social": 75.2,
       "eng": 94,
       "trend": 34.5,
       "spon": 0,
       "val": 0
     },
-    "sponsors": [],
-    "featured": false
+    "sponsors": [
+      "Peak",
+      "USAA"
+    ],
+    "featured": false,
+    "tt": 1250000,
+    "tw": 820000,
+    "fb": 510000,
+    "deal_val": 5,
+    "age": 31,
+    "titles": "NBA Champion ×2 · MVP ×3 · Finals MVP ×2"
   },
   {
     "slug": "robert_lewandowski",
@@ -527,14 +706,25 @@ export const ALL_PLAYERS = [
     "trend_dir": "rising",
     "market_value": 8,
     "sub": {
-      "social": 91.4,
+      "social": 88.3,
       "eng": 88.9,
       "trend": 20.7,
       "spon": 0,
       "val": 4.4
     },
-    "sponsors": [],
-    "featured": false
+    "sponsors": [
+      "Nike",
+      "Huawei",
+      "EFG",
+      "Sorare"
+    ],
+    "featured": false,
+    "tt": 7100000,
+    "tw": 4300000,
+    "fb": 15200000,
+    "deal_val": 10,
+    "age": 37,
+    "titles": "Bundesliga ×8 · UCL 2020 · La Liga ×2"
   },
   {
     "slug": "lewis_hamilton",
@@ -556,14 +746,26 @@ export const ALL_PLAYERS = [
     "trend_dir": "stable",
     "market_value": 0,
     "sub": {
-      "social": 93.5,
+      "social": 88.9,
       "eng": 69,
       "trend": 0,
       "spon": 63,
       "val": 0
     },
-    "sponsors": ["Mercedes", "Tommy Hilfiger", "Monster Energy", "IWC"],
-    "featured": false
+    "sponsors": [
+      "Ferrari",
+      "Tommy Hilfiger",
+      "Monster Energy",
+      "IWC",
+      "Puma"
+    ],
+    "featured": false,
+    "tt": 10400000,
+    "tw": 7900000,
+    "fb": 10200000,
+    "deal_val": 70,
+    "age": 41,
+    "titles": "F1 World Champion ×7 · 103 Race Wins · All-Time Record"
   },
   {
     "slug": "aryna_sabalenka",
@@ -585,14 +787,24 @@ export const ALL_PLAYERS = [
     "trend_dir": "stable",
     "market_value": 0,
     "sub": {
-      "social": 80.9,
+      "social": 79.2,
       "eng": 89.5,
       "trend": 0,
       "spon": 40,
       "val": 0
     },
-    "sponsors": ["Wilson Sporting Goods", "Nike, Inc.", "2023 US Open (tennis)", "Wilson Sporting Goods"],
-    "featured": false
+    "sponsors": [
+      "Nike",
+      "Wilson",
+      "Emirates"
+    ],
+    "featured": false,
+    "tt": 2600000,
+    "tw": 1050000,
+    "fb": 1500000,
+    "deal_val": 8,
+    "age": 28,
+    "titles": "Australian Open ×3 · US Open 2023 · WTA World No.1"
   },
   {
     "slug": "jasprit_bumrah",
@@ -614,14 +826,24 @@ export const ALL_PLAYERS = [
     "trend_dir": "stable",
     "market_value": 0,
     "sub": {
-      "social": 87.6,
+      "social": 85.7,
       "eng": 100,
       "trend": 0,
       "spon": 0,
       "val": 0
     },
-    "sponsors": [],
-    "featured": false
+    "sponsors": [
+      "MRF",
+      "Bharat Petroleum",
+      "Gulf Oil"
+    ],
+    "featured": false,
+    "tt": 4100000,
+    "tw": 10300000,
+    "fb": 7100000,
+    "deal_val": 6,
+    "age": 32,
+    "titles": "T20 WC 2024 · ICC No.1 Bowler · 350+ Int'l Wickets"
   },
   {
     "slug": "max_verstappen",
@@ -643,14 +865,25 @@ export const ALL_PLAYERS = [
     "trend_dir": "stable",
     "market_value": 0,
     "sub": {
-      "social": 90.6,
+      "social": 85.8,
       "eng": 74,
       "trend": 0,
       "spon": 45,
       "val": 0
     },
-    "sponsors": ["RedBull", "Rauch", "Jumbo", "Ziggo"],
-    "featured": false
+    "sponsors": [
+      "Red Bull",
+      "Rauch",
+      "Jumbo",
+      "Ziggo"
+    ],
+    "featured": false,
+    "tt": 9200000,
+    "tw": 6200000,
+    "fb": 5100000,
+    "deal_val": 40,
+    "age": 28,
+    "titles": "F1 World Champion ×4 · 63 Race Wins · All-Time Record"
   },
   {
     "slug": "babar_azam",
@@ -672,14 +905,24 @@ export const ALL_PLAYERS = [
     "trend_dir": "stable",
     "market_value": 0,
     "sub": {
-      "social": 85.9,
+      "social": 84.9,
       "eng": 100,
       "trend": 0,
       "spon": 0,
       "val": 0
     },
-    "sponsors": [],
-    "featured": false
+    "sponsors": [
+      "Kia",
+      "Pepsi",
+      "Servis"
+    ],
+    "featured": false,
+    "tt": 5200000,
+    "tw": 8100000,
+    "fb": 8200000,
+    "deal_val": 6,
+    "age": 31,
+    "titles": "ICC No.1 Ranked Batter · PSL Captain"
   },
   {
     "slug": "andrey_rublev",
@@ -690,7 +933,7 @@ export const ALL_PLAYERS = [
     "nationality": "Russian",
     "position": "Singles",
     "bio": "Andrey Andreyevich Rublev is a Russian professional tennis player. He has been ranked by the ATP as high as world No. 5 in singles, which he achieved on 13 September 2021, and No. 44 in doubles, attained on 6 November",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Andrey_Rublev_%282023_US_Open%29_02_%28cropped%29.jpg/400px-Andrey_Rublev_%282023_US_Open%29_02_%28cropped%29.jpg",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Andrey_Rublev_%282023_US_Open%29_02_%28cropped%29.jpg/500px-Andrey_Rublev_%282023_US_Open%29_02_%28cropped%29.jpg",
     "brand_score": 51.1,
     "tier": "Rising Brand",
     "ig": 622448,
@@ -701,14 +944,24 @@ export const ALL_PLAYERS = [
     "trend_dir": "declining",
     "market_value": 0,
     "sub": {
-      "social": 69.8,
+      "social": 71.5,
       "eng": 100,
       "trend": 18,
       "spon": 0,
       "val": 0
     },
-    "sponsors": [],
-    "featured": false
+    "sponsors": [
+      "Lotto Sport",
+      "Wilson",
+      "Rolex"
+    ],
+    "featured": false,
+    "tt": 920000,
+    "tw": 510000,
+    "fb": 320000,
+    "deal_val": 4,
+    "age": 28,
+    "titles": "ATP Finals 2024 · Davis Cup 2021 · ATP Top 5"
   },
   {
     "slug": "george_russell",
@@ -730,14 +983,24 @@ export const ALL_PLAYERS = [
     "trend_dir": "stable",
     "market_value": 0,
     "sub": {
-      "social": 83.7,
+      "social": 81.9,
       "eng": 100,
       "trend": 0,
       "spon": 0,
       "val": 0
     },
-    "sponsors": [],
-    "featured": false
+    "sponsors": [
+      "Mercedes",
+      "Tommy Hilfiger",
+      "IWC"
+    ],
+    "featured": false,
+    "tt": 3200000,
+    "tw": 3900000,
+    "fb": 2100000,
+    "deal_val": 8,
+    "age": 28,
+    "titles": "Brazilian GP 2022 · 2 Race Wins · Mercedes Driver"
   },
   {
     "slug": "lando_norris",
@@ -759,14 +1022,25 @@ export const ALL_PLAYERS = [
     "trend_dir": "stable",
     "market_value": 0,
     "sub": {
-      "social": 83.7,
+      "social": 83.6,
       "eng": 100,
       "trend": 0,
       "spon": 0,
       "val": 0
     },
-    "sponsors": [],
-    "featured": false
+    "sponsors": [
+      "McLaren",
+      "GoPro",
+      "OKX",
+      "Huski Chocolate"
+    ],
+    "featured": false,
+    "tt": 9400000,
+    "tw": 5200000,
+    "fb": 3200000,
+    "deal_val": 15,
+    "age": 26,
+    "titles": "F1 WC Runner-Up 2024 · 6 Race Wins · McLaren Lead"
   },
   {
     "slug": "oscar_piastri",
@@ -788,14 +1062,24 @@ export const ALL_PLAYERS = [
     "trend_dir": "stable",
     "market_value": 0,
     "sub": {
-      "social": 82.1,
+      "social": 80.3,
       "eng": 100,
       "trend": 0,
       "spon": 0,
       "val": 0
     },
-    "sponsors": [],
-    "featured": false
+    "sponsors": [
+      "McLaren",
+      "Hilton",
+      "OKX"
+    ],
+    "featured": false,
+    "tt": 3050000,
+    "tw": 2100000,
+    "fb": 1520000,
+    "deal_val": 6,
+    "age": 25,
+    "titles": "Australian GP 2025 · F2 Champion 2021 · McLaren Star"
   },
   {
     "slug": "holger_rune",
@@ -806,7 +1090,7 @@ export const ALL_PLAYERS = [
     "nationality": "Danish",
     "position": "Singles",
     "bio": "Holger Vitus Nødskov Rune is a Danish professional tennis player. He has been ranked as high as world No. 4 in singles by the ATP, making him the highest-ranked Danish man in the history of tennis. Rune has won five ATP",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Rune_RG22_%284%29_%2852144534990%29.jpg/400px-Rune_RG22_%284%29_%2852144534990%29.jpg",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Rune_RG22_%284%29_%2852144534990%29.jpg/500px-Rune_RG22_%284%29_%2852144534990%29.jpg",
     "brand_score": 50.2,
     "tier": "Rising Brand",
     "ig": 1046798,
@@ -817,14 +1101,24 @@ export const ALL_PLAYERS = [
     "trend_dir": "declining",
     "market_value": 0,
     "sub": {
-      "social": 72.5,
+      "social": 73.7,
       "eng": 94.4,
       "trend": 18.6,
       "spon": 0,
       "val": 0
     },
-    "sponsors": [],
-    "featured": false
+    "sponsors": [
+      "Puma",
+      "Babolat",
+      "Rolex"
+    ],
+    "featured": false,
+    "tt": 1550000,
+    "tw": 480000,
+    "fb": 520000,
+    "deal_val": 5,
+    "age": 23,
+    "titles": "Paris Masters 2022 · ATP Top 10"
   },
   {
     "slug": "neymar_jr",
@@ -846,14 +1140,24 @@ export const ALL_PLAYERS = [
     "trend_dir": "stable",
     "market_value": 0,
     "sub": {
-      "social": 100,
+      "social": 97.5,
       "eng": 57,
       "trend": 39.3,
       "spon": 0,
       "val": 0
     },
-    "sponsors": [],
-    "featured": false
+    "sponsors": [
+      "Puma",
+      "Red Bull",
+      "Mastercard"
+    ],
+    "featured": false,
+    "tt": 25400000,
+    "tw": 60500000,
+    "fb": 100000000,
+    "deal_val": 18,
+    "age": 34,
+    "titles": "Copa América 2019 · UCL 2015 · La Liga ×2"
   },
   {
     "slug": "shakib_al_hasan",
@@ -864,7 +1168,7 @@ export const ALL_PLAYERS = [
     "nationality": "Bangladeshi",
     "position": "All-rounder",
     "bio": "Shakib Al Hasan is a Bangladeshi international cricketer and captain who played Test, ODI and T20I cricket for the Bangladeshi cricket team. He was a former member of Parliament for Magura-1. He is known for his",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Shakib_Al_Hasan_2023_03.jpg/400px-Shakib_Al_Hasan_2023_03.jpg",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Shakib_Al_Hasan_2023_03.jpg/500px-Shakib_Al_Hasan_2023_03.jpg",
     "brand_score": 50,
     "tier": "Rising Brand",
     "ig": 4200000,
@@ -875,14 +1179,24 @@ export const ALL_PLAYERS = [
     "trend_dir": "stable",
     "market_value": 0,
     "sub": {
-      "social": 79.9,
+      "social": 82.1,
       "eng": 100,
       "trend": 0,
       "spon": 0,
       "val": 0
     },
-    "sponsors": [],
-    "featured": false
+    "sponsors": [
+      "Walton",
+      "Kookaburra",
+      "Robi"
+    ],
+    "featured": false,
+    "tt": 2100000,
+    "tw": 5400000,
+    "fb": 10200000,
+    "deal_val": 3,
+    "age": 39,
+    "titles": "Asia Cup ×2 · ICC No.1 All-Rounder · 700+ Int'l Wickets"
   },
   {
     "slug": "steve_smith",
@@ -893,7 +1207,7 @@ export const ALL_PLAYERS = [
     "nationality": "Australian",
     "position": "Batsman",
     "bio": "Steven Peter Devereux Smith is an Australian international cricketer, former captain of the Australian national team in all three formats of the game and since 2021, the vice-captain of the Australian Test team. He is",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/STEVE_SMITH_%2811705303043%29.jpg/400px-STEVE_SMITH_%2811705303043%29.jpg",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/STEVE_SMITH_%2811705303043%29.jpg/500px-STEVE_SMITH_%2811705303043%29.jpg",
     "brand_score": 49.9,
     "tier": "Rising Brand",
     "ig": 3981410,
@@ -904,14 +1218,24 @@ export const ALL_PLAYERS = [
     "trend_dir": "stable",
     "market_value": 0,
     "sub": {
-      "social": 79.8,
+      "social": 76.6,
       "eng": 100,
       "trend": 0,
       "spon": 0,
       "val": 0
     },
-    "sponsors": [],
-    "featured": false
+    "sponsors": [
+      "ASICS",
+      "Kookaburra",
+      "Nitro"
+    ],
+    "featured": false,
+    "tt": 510000,
+    "tw": 820000,
+    "fb": 510000,
+    "deal_val": 4,
+    "age": 36,
+    "titles": "ICC WC 2015 · Ashes 2019 Hero · Test Avg 59+"
   },
   {
     "slug": "pat_cummins",
@@ -922,7 +1246,7 @@ export const ALL_PLAYERS = [
     "nationality": "Australian",
     "position": "Bowler",
     "bio": "Patrick James Cummins is an Australian international cricketer who plays for the Australian men's cricket team in all three formats, captaining the team in both Test and One Day International cricket. A right-armed pace",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Pat_Cummins_fielding_Ashes_2021_%28cropped%29.jpg/400px-Pat_Cummins_fielding_Ashes_2021_%28cropped%29.jpg",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Pat_Cummins_fielding_Ashes_2021_%28cropped%29.jpg/500px-Pat_Cummins_fielding_Ashes_2021_%28cropped%29.jpg",
     "brand_score": 49.6,
     "tier": "Rising Brand",
     "ig": 3281222,
@@ -933,14 +1257,24 @@ export const ALL_PLAYERS = [
     "trend_dir": "stable",
     "market_value": 0,
     "sub": {
-      "social": 78.5,
+      "social": 77.5,
       "eng": 100,
       "trend": 0,
       "spon": 0,
       "val": 0
     },
-    "sponsors": [],
-    "featured": false
+    "sponsors": [
+      "ASICS",
+      "Kookaburra",
+      "Puma"
+    ],
+    "featured": false,
+    "tt": 1050000,
+    "tw": 2200000,
+    "fb": 1050000,
+    "deal_val": 4,
+    "age": 33,
+    "titles": "ICC WC 2023 · WTC 2023 Captain · Ashes 2023"
   },
   {
     "slug": "casper_ruud",
@@ -962,14 +1296,24 @@ export const ALL_PLAYERS = [
     "trend_dir": "rising",
     "market_value": 0,
     "sub": {
-      "social": 71.2,
+      "social": 71.7,
       "eng": 89.5,
       "trend": 14.1,
       "spon": 0,
       "val": 0
     },
-    "sponsors": [],
-    "featured": false
+    "sponsors": [
+      "Nike",
+      "Babolat",
+      "Rolex"
+    ],
+    "featured": false,
+    "tt": 820000,
+    "tw": 320000,
+    "fb": 310000,
+    "deal_val": 5,
+    "age": 27,
+    "titles": "Roland Garros Finalist ×2 · ATP Top 5"
   },
   {
     "slug": "kevin_de_bruyne",
@@ -980,7 +1324,7 @@ export const ALL_PLAYERS = [
     "nationality": "Belgian",
     "position": "Midfielder",
     "bio": "Kevin De Bruyne is a Belgian professional footballer who plays as a midfielder for Serie A club Napoli and the Belgium national team. Widely regarded as one of the best players of his generation and one of the best",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Kevin_De_Bruyne_USMNT_v_Belgium_Mar_28_2026-64_%28cropped%29.jpg/400px-Kevin_De_Bruyne_USMNT_v_Belgium_Mar_28_2026-64_%28cropped%29.jpg",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Kevin_De_Bruyne_USMNT_v_Belgium_Mar_28_2026-64_%28cropped%29.jpg/500px-Kevin_De_Bruyne_USMNT_v_Belgium_Mar_28_2026-64_%28cropped%29.jpg",
     "brand_score": 47.5,
     "tier": "Rising Brand",
     "ig": 26265636,
@@ -991,14 +1335,24 @@ export const ALL_PLAYERS = [
     "trend_dir": "declining",
     "market_value": 10,
     "sub": {
-      "social": 89.4,
+      "social": 86.3,
       "eng": 61.4,
       "trend": 30.7,
       "spon": 0,
       "val": 5.6
     },
-    "sponsors": [],
-    "featured": false
+    "sponsors": [
+      "Nike",
+      "Lotus Cars",
+      "Eleven Sports"
+    ],
+    "featured": false,
+    "tt": 4100000,
+    "tw": 4900000,
+    "fb": 8100000,
+    "deal_val": 8,
+    "age": 34,
+    "titles": "Premier League ×6 · UCL 2023 · FA Cup 2023"
   },
   {
     "slug": "kawhi_leonard",
@@ -1009,7 +1363,7 @@ export const ALL_PLAYERS = [
     "nationality": "American",
     "position": "Forward",
     "bio": "Kawhi Anthony Leonard is an American professional basketball player for the Los Angeles Clippers of the National Basketball Association (NBA). A two-time NBA champion and Finals MVP, he is a seven-time All-Star and",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Kawhi_Leonard_%287440607%29_%28cropped%29.jpg/400px-Kawhi_Leonard_%287440607%29_%28cropped%29.jpg",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Kawhi_Leonard_%287440607%29_%28cropped%29.jpg/500px-Kawhi_Leonard_%287440607%29_%28cropped%29.jpg",
     "brand_score": 45.8,
     "tier": "Rising Brand",
     "ig": 3800000,
@@ -1020,14 +1374,24 @@ export const ALL_PLAYERS = [
     "trend_dir": "rising",
     "market_value": 0,
     "sub": {
-      "social": 79.3,
+      "social": 77.8,
       "eng": 65.2,
       "trend": 32.2,
       "spon": 0,
       "val": 0
     },
-    "sponsors": [],
-    "featured": false
+    "sponsors": [
+      "New Balance",
+      "Panini",
+      "Honey"
+    ],
+    "featured": false,
+    "tt": 950000,
+    "tw": 2200000,
+    "fb": 1100000,
+    "deal_val": 8,
+    "age": 34,
+    "titles": "NBA Champion ×2 · Finals MVP ×2 · DPOY ×2"
   },
   {
     "slug": "lebron_james",
@@ -1049,14 +1413,27 @@ export const ALL_PLAYERS = [
     "trend_dir": "rising",
     "market_value": 0,
     "sub": {
-      "social": 98.6,
+      "social": 95.1,
       "eng": 3,
       "trend": 49.7,
       "spon": 69,
       "val": 0
     },
-    "sponsors": ["Nike", "Beats", "Blaze Pizza", "Walmart"],
-    "featured": true
+    "sponsors": [
+      "Nike",
+      "Beats",
+      "Blaze Pizza",
+      "Walmart",
+      "AT&T",
+      "PepsiCo"
+    ],
+    "featured": true,
+    "tt": 24100000,
+    "tw": 52400000,
+    "fb": 22000000,
+    "deal_val": 65,
+    "age": 41,
+    "titles": "NBA Champion ×4 · MVP ×4 · Olympic Gold ×3"
   },
   {
     "slug": "mohamed_salah",
@@ -1078,14 +1455,25 @@ export const ALL_PLAYERS = [
     "trend_dir": "rising",
     "market_value": 30,
     "sub": {
-      "social": 94.2,
+      "social": 91.9,
       "eng": 28.6,
       "trend": 20.1,
       "spon": 47,
       "val": 16.7
     },
-    "sponsors": ["Adidas", "Vodafone", "HSBC", "Pepsi"],
-    "featured": false
+    "sponsors": [
+      "Adidas",
+      "Vodafone",
+      "HSBC",
+      "Pepsi"
+    ],
+    "featured": false,
+    "tt": 11800000,
+    "tw": 12100000,
+    "fb": 55000000,
+    "deal_val": 18,
+    "age": 33,
+    "titles": "UCL 2019 · Premier League 2020 · FA Cup 2022"
   },
   {
     "slug": "ben_stokes",
@@ -1107,14 +1495,23 @@ export const ALL_PLAYERS = [
     "trend_dir": "stable",
     "market_value": 0,
     "sub": {
-      "social": 78.3,
+      "social": 76.9,
       "eng": 83.3,
       "trend": 0,
       "spon": 0,
       "val": 0
     },
-    "sponsors": [],
-    "featured": false
+    "sponsors": [
+      "New Balance",
+      "Dafabet"
+    ],
+    "featured": false,
+    "tt": 820000,
+    "tw": 2100000,
+    "fb": 520000,
+    "deal_val": 4,
+    "age": 34,
+    "titles": "ICC WC 2019 · WTC 2021 Hero · Ashes 2015"
   },
   {
     "slug": "nico_hülkenberg",
@@ -1136,14 +1533,23 @@ export const ALL_PLAYERS = [
     "trend_dir": "stable",
     "market_value": 0,
     "sub": {
-      "social": 72.5,
+      "social": 72.7,
       "eng": 86.8,
       "trend": 0,
       "spon": 0,
       "val": 0
     },
-    "sponsors": [],
-    "featured": false
+    "sponsors": [
+      "Audi",
+      "Haas"
+    ],
+    "featured": false,
+    "tt": 520000,
+    "tw": 1050000,
+    "fb": 320000,
+    "deal_val": 3,
+    "age": 38,
+    "titles": "Le Mans 2015 · 15+ F1 Seasons · Audi Factory"
   },
   {
     "slug": "giannis_antetokounmpo",
@@ -1165,14 +1571,24 @@ export const ALL_PLAYERS = [
     "trend_dir": "rising",
     "market_value": 0,
     "sub": {
-      "social": 86.8,
+      "social": 84.4,
       "eng": 58.2,
       "trend": 20.7,
       "spon": 0,
       "val": 0
     },
-    "sponsors": [],
-    "featured": false
+    "sponsors": [
+      "Nike",
+      "BBVA",
+      "Halo Top"
+    ],
+    "featured": false,
+    "tt": 5300000,
+    "tw": 4100000,
+    "fb": 4100000,
+    "deal_val": 15,
+    "age": 31,
+    "titles": "NBA Champion 2021 · MVP ×2 · DPOY 2020"
   },
   {
     "slug": "stephen_curry",
@@ -1194,14 +1610,26 @@ export const ALL_PLAYERS = [
     "trend_dir": "rising",
     "market_value": 0,
     "sub": {
-      "social": 93.5,
+      "social": 90.6,
       "eng": 11.3,
       "trend": 45.8,
       "spon": 48,
       "val": 0
     },
-    "sponsors": ["Under Armour", "Chase", "Palm", "Rakuten"],
-    "featured": true
+    "sponsors": [
+      "Under Armour",
+      "Chase",
+      "Rakuten",
+      "Nissan",
+      "Callaway"
+    ],
+    "featured": true,
+    "tt": 15200000,
+    "tw": 17200000,
+    "fb": 15000000,
+    "deal_val": 50,
+    "age": 38,
+    "titles": "NBA Champion ×4 · MVP ×2 · Olympic Gold 2024"
   },
   {
     "slug": "carlos_sainz",
@@ -1223,14 +1651,24 @@ export const ALL_PLAYERS = [
     "trend_dir": "stable",
     "market_value": 0,
     "sub": {
-      "social": 85.8,
+      "social": 83.4,
       "eng": 71.4,
       "trend": 0,
       "spon": 0,
       "val": 0
     },
-    "sponsors": [],
-    "featured": false
+    "sponsors": [
+      "Richard Mille",
+      "Estrella Galicia",
+      "PokerStars"
+    ],
+    "featured": false,
+    "tt": 4200000,
+    "tw": 4100000,
+    "fb": 3100000,
+    "deal_val": 8,
+    "age": 31,
+    "titles": "Australian GP 2024 · 3 Race Wins · Williams 2025"
   },
   {
     "slug": "kane_williamson",
@@ -1252,14 +1690,23 @@ export const ALL_PLAYERS = [
     "trend_dir": "stable",
     "market_value": 0,
     "sub": {
-      "social": 72.8,
+      "social": 73.0,
       "eng": 82,
       "trend": 0,
       "spon": 0,
       "val": 0
     },
-    "sponsors": [],
-    "featured": false
+    "sponsors": [
+      "Spartan",
+      "Adidas"
+    ],
+    "featured": false,
+    "tt": 480000,
+    "tw": 1100000,
+    "fb": 520000,
+    "deal_val": 3,
+    "age": 35,
+    "titles": "ICC WTC 2021 · ICC WC Finalist 2019 · NZ Captain"
   },
   {
     "slug": "joe_root",
@@ -1281,14 +1728,23 @@ export const ALL_PLAYERS = [
     "trend_dir": "stable",
     "market_value": 0,
     "sub": {
-      "social": 73.2,
+      "social": 72.8,
       "eng": 80.8,
       "trend": 0,
       "spon": 0,
       "val": 0
     },
-    "sponsors": [],
-    "featured": false
+    "sponsors": [
+      "New Balance",
+      "Gray-Nicolls"
+    ],
+    "featured": false,
+    "tt": 320000,
+    "tw": 1050000,
+    "fb": 420000,
+    "deal_val": 3,
+    "age": 35,
+    "titles": "England Test Record · 12,500+ Test Runs"
   },
   {
     "slug": "rohit_sharma",
@@ -1299,7 +1755,7 @@ export const ALL_PLAYERS = [
     "nationality": "Indian",
     "position": "Batsman",
     "bio": "Rohit Gurunath Sharma is an Indian international cricketer and the former captain of the India national cricket team in all formats of the game. He is a right-handed top-order batter. He represents Mumbai in domestic",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Prime_Minister_Of_Bharat_Shri_Narendra_Damodardas_Modi_with_Shri_Rohit_Gurunath_Sharma_%28Cropped%29.jpg/400px-Prime_Minister_Of_Bharat_Shri_Narendra_Damodardas_Modi_with_Shri_Rohit_Gurunath_Sharma_%28Cropped%29.jpg",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Prime_Minister_Of_Bharat_Shri_Narendra_Damodardas_Modi_with_Shri_Rohit_Gurunath_Sharma_%28Cropped%29.jpg/500px-Prime_Minister_Of_Bharat_Shri_Narendra_Damodardas_Modi_with_Shri_Rohit_Gurunath_Sharma_%28Cropped%29.jpg",
     "brand_score": 41,
     "tier": "Rising Brand",
     "ig": 46487885,
@@ -1310,14 +1766,25 @@ export const ALL_PLAYERS = [
     "trend_dir": "stable",
     "market_value": 0,
     "sub": {
-      "social": 92.4,
+      "social": 90.0,
       "eng": 59.8,
       "trend": 0,
       "spon": 0,
       "val": 0
     },
-    "sponsors": [],
-    "featured": false
+    "sponsors": [
+      "Adidas",
+      "CEAT",
+      "Oppo",
+      "Lay's"
+    ],
+    "featured": false,
+    "tt": 8100000,
+    "tw": 25400000,
+    "fb": 15200000,
+    "deal_val": 12,
+    "age": 39,
+    "titles": "T20 WC 2024 · ICC WC 2011 · IPL ×5 Captain"
   },
   {
     "slug": "joel_embiid",
@@ -1339,14 +1806,24 @@ export const ALL_PLAYERS = [
     "trend_dir": "rising",
     "market_value": 0,
     "sub": {
-      "social": 82.5,
+      "social": 81.5,
       "eng": 46.6,
       "trend": 14.6,
       "spon": 0,
       "val": 0
     },
-    "sponsors": [],
-    "featured": false
+    "sponsors": [
+      "Nike",
+      "Comcast",
+      "Stance"
+    ],
+    "featured": false,
+    "tt": 3200000,
+    "tw": 4900000,
+    "fb": 2100000,
+    "deal_val": 10,
+    "age": 32,
+    "titles": "NBA MVP 2023 · All-Star ×8 · Olympic Gold 2024"
   },
   {
     "slug": "novak_djokovic",
@@ -1368,14 +1845,25 @@ export const ALL_PLAYERS = [
     "trend_dir": "declining",
     "market_value": 0,
     "sub": {
-      "social": 86.9,
+      "social": 86.2,
       "eng": 20.2,
       "trend": 15.4,
       "spon": 40,
       "val": 0
     },
-    "sponsors": ["Lacoste", "Head", "Peugeot", "Seiko"],
-    "featured": true
+    "sponsors": [
+      "Lacoste",
+      "Head",
+      "Seiko",
+      "Hublot"
+    ],
+    "featured": true,
+    "tt": 7200000,
+    "tw": 10400000,
+    "fb": 12400000,
+    "deal_val": 30,
+    "age": 39,
+    "titles": "Grand Slam ×24 · ATP No.1 ×428 Weeks · Olympic Gold 2024"
   },
   {
     "slug": "damian_lillard",
@@ -1397,14 +1885,24 @@ export const ALL_PLAYERS = [
     "trend_dir": "declining",
     "market_value": 0,
     "sub": {
-      "social": 84.3,
+      "social": 83.2,
       "eng": 43.2,
       "trend": 12.6,
       "spon": 0,
       "val": 0
     },
-    "sponsors": [],
-    "featured": false
+    "sponsors": [
+      "Adidas",
+      "Spalding",
+      "State Farm"
+    ],
+    "featured": false,
+    "tt": 4400000,
+    "tw": 7100000,
+    "fb": 3100000,
+    "deal_val": 12,
+    "age": 35,
+    "titles": "NBA Champion 2024 · All-Star ×8"
   },
   {
     "slug": "fernando_alonso",
@@ -1426,14 +1924,25 @@ export const ALL_PLAYERS = [
     "trend_dir": "stable",
     "market_value": 0,
     "sub": {
-      "social": 83.2,
+      "social": 83.3,
       "eng": 49.4,
       "trend": 0,
       "spon": 0,
       "val": 0
     },
-    "sponsors": [],
-    "featured": false
+    "sponsors": [
+      "Kimoa",
+      "Richard Mille",
+      "Mapfre",
+      "Greenworks"
+    ],
+    "featured": false,
+    "tt": 3100000,
+    "tw": 7100000,
+    "fb": 8200000,
+    "deal_val": 10,
+    "age": 44,
+    "titles": "F1 World Champion ×2 · 32 Race Wins · Le Mans 24h"
   },
   {
     "slug": "sergio_pérez",
@@ -1444,7 +1953,7 @@ export const ALL_PLAYERS = [
     "nationality": "Mexican",
     "position": "Driver",
     "bio": "Sergio Michel \"Checo\" Pérez Mendoza is a Mexican racing driver who competes in Formula One for Cadillac. Pérez was runner-up in the Formula One World Drivers' Championship in 2023 with Red Bull, and has won six Grands",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/2021_US_GP_driver_parade_%28cropped2%29.jpg/400px-2021_US_GP_driver_parade_%28cropped2%29.jpg",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/5/55/2021_US_GP_driver_parade_%28cropped2%29.jpg",
     "brand_score": 27.4,
     "tier": "Developing",
     "ig": 8450726,
@@ -1455,13 +1964,23 @@ export const ALL_PLAYERS = [
     "trend_dir": "stable",
     "market_value": 0,
     "sub": {
-      "social": 83.6,
+      "social": 83.5,
       "eng": 21.8,
       "trend": 0,
       "spon": 0,
       "val": 0
     },
-    "sponsors": [],
-    "featured": false
+    "sponsors": [
+      "Red Bull",
+      "Telcel",
+      "Claro"
+    ],
+    "featured": false,
+    "tt": 5100000,
+    "tw": 8200000,
+    "fb": 5100000,
+    "deal_val": 10,
+    "age": 36,
+    "titles": "Singapore GP 2023 · Monaco GP 2022 · 6 Race Wins"
   }
 ];

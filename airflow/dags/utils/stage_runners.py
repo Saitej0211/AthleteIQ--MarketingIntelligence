@@ -80,6 +80,45 @@ def run_stage3_youtube_sport(sport: str, **context) -> dict:
     return {"sport": sport, "available": ok, "total": len(df)}
 
 
+def run_stage3_tiktok_sport(sport: str, **context) -> dict:
+    from scrapers.master_list_scraper import load_master_list
+    from scrapers.social_media.tiktok_scraper import scrape_tiktok
+    df = load_master_list(sport)
+    ok = 0
+    for _, row in df.iterrows():
+        r = scrape_tiktok(row["name"], row["slug"])
+        if r.get("available"):
+            ok += 1
+    logger.info(f"Stage 3 TikTok [{sport}]: {ok}/{len(df)} available")
+    return {"sport": sport, "available": ok, "total": len(df)}
+
+
+def run_stage3_twitter_sport(sport: str, **context) -> dict:
+    from scrapers.master_list_scraper import load_master_list
+    from scrapers.social_media.twitter_scraper import scrape_twitter
+    df = load_master_list(sport)
+    ok = 0
+    for _, row in df.iterrows():
+        r = scrape_twitter(row["name"], row["slug"])
+        if r.get("available"):
+            ok += 1
+    logger.info(f"Stage 3 Twitter [{sport}]: {ok}/{len(df)} available")
+    return {"sport": sport, "available": ok, "total": len(df)}
+
+
+def run_stage3_facebook_sport(sport: str, **context) -> dict:
+    from scrapers.master_list_scraper import load_master_list
+    from scrapers.social_media.facebook_scraper import scrape_facebook
+    df = load_master_list(sport)
+    ok = 0
+    for _, row in df.iterrows():
+        r = scrape_facebook(row["name"], row["slug"])
+        if r.get("available"):
+            ok += 1
+    logger.info(f"Stage 3 Facebook [{sport}]: {ok}/{len(df)} available")
+    return {"sport": sport, "available": ok, "total": len(df)}
+
+
 def run_stage3_all(**context) -> dict:
     """Run all social media scrapers for all sports (standalone stage-3 DAG)."""
     from config.settings import SPORTS
@@ -88,6 +127,9 @@ def run_stage3_all(**context) -> dict:
         results[sport] = {
             "instagram": run_stage3_instagram_sport(sport),
             "youtube":   run_stage3_youtube_sport(sport),
+            "tiktok":    run_stage3_tiktok_sport(sport),
+            "twitter":   run_stage3_twitter_sport(sport),
+            "facebook":  run_stage3_facebook_sport(sport),
         }
     return results
 
@@ -159,6 +201,9 @@ def run_stage6_sport(sport: str, **context) -> dict:
             "social_media": {
                 "instagram": load_json(SOCIAL_DIR / "instagram" / f"{slug}.json") or {},
                 "youtube":   load_json(SOCIAL_DIR / "youtube"   / f"{slug}.json") or {},
+                "tiktok":    load_json(SOCIAL_DIR / "tiktok"    / f"{slug}.json") or {},
+                "twitter":   load_json(SOCIAL_DIR / "twitter"   / f"{slug}.json") or {},
+                "facebook":  load_json(SOCIAL_DIR / "facebook"  / f"{slug}.json") or {},
             },
             "trends":       scrape_trends(row["name"], slug),
             "sponsorships": scrape_sponsorships(row["name"], slug, row.get("wikipedia_slug", "")),

@@ -34,38 +34,40 @@ WIKIPEDIA_API = "https://en.wikipedia.org/w/api.php"
 
 # Curated seed sponsorships — most reliable source for known deals
 SEED_SPONSORSHIPS: dict[str, dict] = {
-    "kylian_mbappe": {
+    # ── Football ──────────────────────────────────────────────────────────────
+    "kylian_mbappé": {
         "sponsors": [
-            {"brand": "Nike",    "category": "apparel",     "status": "current"},
-            {"brand": "Hublot",  "category": "luxury",      "status": "current"},
-            {"brand": "EA Sports","category": "gaming",     "status": "current"},
-            {"brand": "Dior",    "category": "luxury",      "status": "current"},
-            {"brand": "Oakley",  "category": "lifestyle",   "status": "current"},
+            {"brand": "Nike",       "category": "apparel",      "status": "current"},
+            {"brand": "Hublot",     "category": "luxury",       "status": "current"},
+            {"brand": "EA Sports",  "category": "gaming",       "status": "current"},
+            {"brand": "Dior",       "category": "luxury",       "status": "current"},
+            {"brand": "Oakley",     "category": "lifestyle",    "status": "current"},
         ],
         "estimated_annual": "$55M",
     },
     "erling_haaland": {
         "sponsors": [
-            {"brand": "Nike",       "category": "apparel",  "status": "current"},
-            {"brand": "CCC",        "category": "footwear", "status": "past"},
-            {"brand": "Hyperice",   "category": "healthcare","status": "current"},
-            {"brand": "Breitling",  "category": "luxury",   "status": "current"},
+            {"brand": "Nike",       "category": "apparel",      "status": "current"},
+            {"brand": "Hyperice",   "category": "healthcare",   "status": "current"},
+            {"brand": "Breitling",  "category": "luxury",       "status": "current"},
+            {"brand": "Nespresso",  "category": "food_beverage","status": "current"},
         ],
         "estimated_annual": "$30M",
     },
-    "vinicius_junior": {
+    "vinícius_júnior": {
         "sponsors": [
-            {"brand": "Nike",   "category": "apparel",     "status": "current"},
-            {"brand": "PGbet",  "category": "finance",     "status": "current"},
-            {"brand": "RedBull","category": "food_beverage","status": "current"},
+            {"brand": "Nike",       "category": "apparel",      "status": "current"},
+            {"brand": "Red Bull",   "category": "food_beverage","status": "current"},
+            {"brand": "Spotify",    "category": "technology",   "status": "current"},
         ],
-        "estimated_annual": "$20M",
+        "estimated_annual": "$22M",
     },
     "jude_bellingham": {
         "sponsors": [
-            {"brand": "Adidas", "category": "apparel",   "status": "current"},
-            {"brand": "BMW",    "category": "automotive","status": "current"},
-            {"brand": "IWC",    "category": "luxury",    "status": "current"},
+            {"brand": "Adidas",     "category": "apparel",      "status": "current"},
+            {"brand": "BMW",        "category": "automotive",   "status": "current"},
+            {"brand": "IWC",        "category": "luxury",       "status": "current"},
+            {"brand": "Cadbury",    "category": "food_beverage","status": "current"},
         ],
         "estimated_annual": "$25M",
     },
@@ -78,6 +80,47 @@ SEED_SPONSORSHIPS: dict[str, dict] = {
         ],
         "estimated_annual": "$18M",
     },
+    "kevin_de_bruyne": {
+        "sponsors": [
+            {"brand": "Nike",       "category": "apparel",      "status": "current"},
+            {"brand": "Lotus Cars", "category": "automotive",   "status": "current"},
+            {"brand": "Eleven Sports","category": "technology", "status": "current"},
+        ],
+        "estimated_annual": "$8M",
+    },
+    "pedri": {
+        "sponsors": [
+            {"brand": "Nike",       "category": "apparel",      "status": "current"},
+            {"brand": "Gillette",   "category": "lifestyle",    "status": "current"},
+        ],
+        "estimated_annual": "$5M",
+    },
+    "rodri": {
+        "sponsors": [
+            {"brand": "Adidas",     "category": "apparel",      "status": "current"},
+            {"brand": "Santander",  "category": "finance",      "status": "current"},
+        ],
+        "estimated_annual": "$4M",
+    },
+    "robert_lewandowski": {
+        "sponsors": [
+            {"brand": "Nike",       "category": "apparel",      "status": "current"},
+            {"brand": "Huawei",     "category": "technology",   "status": "current"},
+            {"brand": "EFG",        "category": "finance",      "status": "current"},
+            {"brand": "Sorare",     "category": "gaming",       "status": "current"},
+        ],
+        "estimated_annual": "$10M",
+    },
+    "neymar_jr": {
+        "sponsors": [
+            {"brand": "Puma",       "category": "apparel",      "status": "current"},
+            {"brand": "Red Bull",   "category": "food_beverage","status": "current"},
+            {"brand": "Mastercard", "category": "finance",      "status": "current"},
+            {"brand": "Panasonic",  "category": "technology",   "status": "past"},
+        ],
+        "estimated_annual": "$18M",
+    },
+    # ── Basketball ────────────────────────────────────────────────────────────
     "lebron_james": {
         "sponsors": [
             {"brand": "Nike",       "category": "apparel",      "status": "current"},
@@ -93,22 +136,164 @@ SEED_SPONSORSHIPS: dict[str, dict] = {
         "sponsors": [
             {"brand": "Under Armour","category": "apparel",     "status": "current"},
             {"brand": "Chase",      "category": "finance",      "status": "current"},
-            {"brand": "Palm",       "category": "technology",   "status": "past"},
             {"brand": "Rakuten",    "category": "technology",   "status": "current"},
             {"brand": "Nissan",     "category": "automotive",   "status": "current"},
+            {"brand": "Callaway",   "category": "lifestyle",    "status": "current"},
         ],
         "estimated_annual": "$50M",
     },
+    "giannis_antetokounmpo": {
+        "sponsors": [
+            {"brand": "Nike",       "category": "apparel",      "status": "current"},
+            {"brand": "BBVA",       "category": "finance",      "status": "current"},
+            {"brand": "Halo Top",   "category": "food_beverage","status": "current"},
+        ],
+        "estimated_annual": "$15M",
+    },
+    "kevin_durant": {
+        "sponsors": [
+            {"brand": "Nike",       "category": "apparel",      "status": "current"},
+            {"brand": "Gatorade",   "category": "food_beverage","status": "current"},
+            {"brand": "Alaska Airlines","category": "lifestyle","status": "current"},
+            {"brand": "Coinbase",   "category": "finance",      "status": "current"},
+        ],
+        "estimated_annual": "$25M",
+    },
+    "nikola_jokić": {
+        "sponsors": [
+            {"brand": "Peak",       "category": "apparel",      "status": "current"},
+            {"brand": "USAA",       "category": "finance",      "status": "current"},
+        ],
+        "estimated_annual": "$5M",
+    },
+    "luka_dončić": {
+        "sponsors": [
+            {"brand": "Jordan Brand","category": "apparel",     "status": "current"},
+            {"brand": "Panini",     "category": "lifestyle",    "status": "current"},
+            {"brand": "Sportradar", "category": "technology",   "status": "current"},
+        ],
+        "estimated_annual": "$15M",
+    },
+    "joel_embiid": {
+        "sponsors": [
+            {"brand": "Nike",       "category": "apparel",      "status": "current"},
+            {"brand": "Comcast",    "category": "technology",   "status": "current"},
+            {"brand": "Stance",     "category": "apparel",      "status": "current"},
+        ],
+        "estimated_annual": "$10M",
+    },
+    "jayson_tatum": {
+        "sponsors": [
+            {"brand": "Jordan Brand","category": "apparel",     "status": "current"},
+            {"brand": "Subway",     "category": "food_beverage","status": "current"},
+            {"brand": "State Farm", "category": "finance",      "status": "current"},
+        ],
+        "estimated_annual": "$12M",
+    },
+    "damian_lillard": {
+        "sponsors": [
+            {"brand": "Adidas",     "category": "apparel",      "status": "current"},
+            {"brand": "Spalding",   "category": "lifestyle",    "status": "current"},
+            {"brand": "State Farm", "category": "finance",      "status": "current"},
+        ],
+        "estimated_annual": "$12M",
+    },
+    "kawhi_leonard": {
+        "sponsors": [
+            {"brand": "New Balance","category": "apparel",      "status": "current"},
+            {"brand": "Panini",     "category": "lifestyle",    "status": "current"},
+            {"brand": "Honey",      "category": "technology",   "status": "current"},
+        ],
+        "estimated_annual": "$8M",
+    },
+    # ── Tennis ────────────────────────────────────────────────────────────────
     "novak_djokovic": {
         "sponsors": [
             {"brand": "Lacoste",    "category": "apparel",      "status": "current"},
             {"brand": "Head",       "category": "apparel",      "status": "current"},
-            {"brand": "Peugeot",    "category": "automotive",   "status": "past"},
             {"brand": "Seiko",      "category": "luxury",       "status": "current"},
-            {"brand": "Hublot",     "category": "luxury",       "status": "past"},
+            {"brand": "Hublot",     "category": "luxury",       "status": "current"},
         ],
         "estimated_annual": "$30M",
     },
+    "carlos_alcaraz": {
+        "sponsors": [
+            {"brand": "Nike",       "category": "apparel",      "status": "current"},
+            {"brand": "Babolat",    "category": "apparel",      "status": "current"},
+            {"brand": "Rolex",      "category": "luxury",       "status": "current"},
+            {"brand": "Louis Vuitton","category": "luxury",     "status": "current"},
+        ],
+        "estimated_annual": "$25M",
+    },
+    "jannik_sinner": {
+        "sponsors": [
+            {"brand": "Nike",       "category": "apparel",      "status": "current"},
+            {"brand": "Babolat",    "category": "apparel",      "status": "current"},
+            {"brand": "Rolex",      "category": "luxury",       "status": "current"},
+            {"brand": "Swarovski",  "category": "luxury",       "status": "current"},
+        ],
+        "estimated_annual": "$15M",
+    },
+    "daniil_medvedev": {
+        "sponsors": [
+            {"brand": "Lacoste",    "category": "apparel",      "status": "current"},
+            {"brand": "Tecnifibre", "category": "apparel",      "status": "current"},
+            {"brand": "BMW",        "category": "automotive",   "status": "current"},
+            {"brand": "Bovet Fleurier","category": "luxury",    "status": "current"},
+        ],
+        "estimated_annual": "$12M",
+    },
+    "alexander_zverev": {
+        "sponsors": [
+            {"brand": "Adidas",     "category": "apparel",      "status": "current"},
+            {"brand": "Head",       "category": "apparel",      "status": "current"},
+            {"brand": "Rolex",      "category": "luxury",       "status": "current"},
+            {"brand": "Porsche",    "category": "automotive",   "status": "current"},
+        ],
+        "estimated_annual": "$15M",
+    },
+    "aryna_sabalenka": {
+        "sponsors": [
+            {"brand": "Nike",       "category": "apparel",      "status": "current"},
+            {"brand": "Wilson",     "category": "apparel",      "status": "current"},
+            {"brand": "Emirates",   "category": "lifestyle",    "status": "current"},
+        ],
+        "estimated_annual": "$8M",
+    },
+    "casper_ruud": {
+        "sponsors": [
+            {"brand": "Nike",       "category": "apparel",      "status": "current"},
+            {"brand": "Babolat",    "category": "apparel",      "status": "current"},
+            {"brand": "Rolex",      "category": "luxury",       "status": "current"},
+        ],
+        "estimated_annual": "$5M",
+    },
+    "holger_rune": {
+        "sponsors": [
+            {"brand": "Puma",       "category": "apparel",      "status": "current"},
+            {"brand": "Babolat",    "category": "apparel",      "status": "current"},
+            {"brand": "Rolex",      "category": "luxury",       "status": "current"},
+        ],
+        "estimated_annual": "$5M",
+    },
+    "andrey_rublev": {
+        "sponsors": [
+            {"brand": "Lotto Sport","category": "apparel",      "status": "current"},
+            {"brand": "Wilson",     "category": "apparel",      "status": "current"},
+            {"brand": "Rolex",      "category": "luxury",       "status": "current"},
+        ],
+        "estimated_annual": "$4M",
+    },
+    "taylor_fritz": {
+        "sponsors": [
+            {"brand": "Hugo Boss",  "category": "apparel",      "status": "current"},
+            {"brand": "Head",       "category": "apparel",      "status": "current"},
+            {"brand": "Nike",       "category": "apparel",      "status": "past"},
+            {"brand": "Rolex",      "category": "luxury",       "status": "current"},
+        ],
+        "estimated_annual": "$6M",
+    },
+    # ── Cricket ───────────────────────────────────────────────────────────────
     "virat_kohli": {
         "sponsors": [
             {"brand": "Puma",       "category": "apparel",      "status": "current"},
@@ -119,9 +304,80 @@ SEED_SPONSORSHIPS: dict[str, dict] = {
         ],
         "estimated_annual": "$35M",
     },
+    "rohit_sharma": {
+        "sponsors": [
+            {"brand": "Adidas",     "category": "apparel",      "status": "current"},
+            {"brand": "CEAT",       "category": "automotive",   "status": "current"},
+            {"brand": "Oppo",       "category": "technology",   "status": "current"},
+            {"brand": "Lay's",      "category": "food_beverage","status": "current"},
+        ],
+        "estimated_annual": "$12M",
+    },
+    "babar_azam": {
+        "sponsors": [
+            {"brand": "Kia",        "category": "automotive",   "status": "current"},
+            {"brand": "Pepsi",      "category": "food_beverage","status": "current"},
+            {"brand": "Servis",     "category": "apparel",      "status": "current"},
+        ],
+        "estimated_annual": "$6M",
+    },
+    "ben_stokes": {
+        "sponsors": [
+            {"brand": "New Balance","category": "apparel",      "status": "current"},
+            {"brand": "Dafabet",    "category": "finance",      "status": "current"},
+        ],
+        "estimated_annual": "$4M",
+    },
+    "jasprit_bumrah": {
+        "sponsors": [
+            {"brand": "MRF",        "category": "apparel",      "status": "current"},
+            {"brand": "Bharat Petroleum","category": "other",   "status": "current"},
+            {"brand": "Gulf Oil",   "category": "other",        "status": "current"},
+        ],
+        "estimated_annual": "$6M",
+    },
+    "joe_root": {
+        "sponsors": [
+            {"brand": "New Balance","category": "apparel",      "status": "current"},
+            {"brand": "Gray-Nicolls","category": "apparel",     "status": "current"},
+        ],
+        "estimated_annual": "$3M",
+    },
+    "steve_smith": {
+        "sponsors": [
+            {"brand": "ASICS",      "category": "apparel",      "status": "current"},
+            {"brand": "Kookaburra", "category": "apparel",      "status": "current"},
+            {"brand": "Nitro",      "category": "lifestyle",    "status": "current"},
+        ],
+        "estimated_annual": "$4M",
+    },
+    "pat_cummins": {
+        "sponsors": [
+            {"brand": "ASICS",      "category": "apparel",      "status": "current"},
+            {"brand": "Kookaburra", "category": "apparel",      "status": "current"},
+            {"brand": "Puma",       "category": "apparel",      "status": "current"},
+        ],
+        "estimated_annual": "$4M",
+    },
+    "kane_williamson": {
+        "sponsors": [
+            {"brand": "Spartan",    "category": "apparel",      "status": "current"},
+            {"brand": "Adidas",     "category": "apparel",      "status": "current"},
+        ],
+        "estimated_annual": "$3M",
+    },
+    "shakib_al_hasan": {
+        "sponsors": [
+            {"brand": "Walton",     "category": "technology",   "status": "current"},
+            {"brand": "Kookaburra", "category": "apparel",      "status": "current"},
+            {"brand": "Robi",       "category": "technology",   "status": "current"},
+        ],
+        "estimated_annual": "$3M",
+    },
+    # ── Formula 1 ─────────────────────────────────────────────────────────────
     "max_verstappen": {
         "sponsors": [
-            {"brand": "RedBull",    "category": "food_beverage","status": "current"},
+            {"brand": "Red Bull",   "category": "food_beverage","status": "current"},
             {"brand": "Rauch",      "category": "food_beverage","status": "current"},
             {"brand": "Jumbo",      "category": "food_beverage","status": "current"},
             {"brand": "Ziggo",      "category": "technology",   "status": "current"},
@@ -130,13 +386,79 @@ SEED_SPONSORSHIPS: dict[str, dict] = {
     },
     "lewis_hamilton": {
         "sponsors": [
-            {"brand": "Mercedes",   "category": "automotive",   "status": "current"},
+            {"brand": "Ferrari",    "category": "automotive",   "status": "current"},
             {"brand": "Tommy Hilfiger","category": "apparel",   "status": "current"},
             {"brand": "Monster Energy","category": "food_beverage","status": "current"},
             {"brand": "IWC",        "category": "luxury",       "status": "current"},
             {"brand": "Puma",       "category": "apparel",      "status": "current"},
         ],
         "estimated_annual": "$70M",
+    },
+    "charles_leclerc": {
+        "sponsors": [
+            {"brand": "Richard Mille","category": "luxury",     "status": "current"},
+            {"brand": "Rolex",      "category": "luxury",       "status": "current"},
+            {"brand": "Bvlgari",    "category": "luxury",       "status": "current"},
+            {"brand": "Ray-Ban",    "category": "lifestyle",    "status": "current"},
+        ],
+        "estimated_annual": "$15M",
+    },
+    "lando_norris": {
+        "sponsors": [
+            {"brand": "McLaren",    "category": "automotive",   "status": "current"},
+            {"brand": "GoPro",      "category": "technology",   "status": "current"},
+            {"brand": "Huski Chocolate","category": "food_beverage","status": "current"},
+            {"brand": "OKX",        "category": "finance",      "status": "current"},
+        ],
+        "estimated_annual": "$15M",
+    },
+    "carlos_sainz": {
+        "sponsors": [
+            {"brand": "Richard Mille","category": "luxury",     "status": "current"},
+            {"brand": "Estrella Galicia","category": "food_beverage","status": "current"},
+            {"brand": "PokerStars", "category": "gaming",       "status": "current"},
+        ],
+        "estimated_annual": "$8M",
+    },
+    "fernando_alonso": {
+        "sponsors": [
+            {"brand": "Kimoa",      "category": "apparel",      "status": "current"},
+            {"brand": "Greenworks", "category": "lifestyle",    "status": "current"},
+            {"brand": "Richard Mille","category": "luxury",     "status": "current"},
+            {"brand": "Mapfre",     "category": "finance",      "status": "current"},
+        ],
+        "estimated_annual": "$10M",
+    },
+    "george_russell": {
+        "sponsors": [
+            {"brand": "Mercedes",   "category": "automotive",   "status": "current"},
+            {"brand": "Tommy Hilfiger","category": "apparel",   "status": "current"},
+            {"brand": "IWC",        "category": "luxury",       "status": "current"},
+        ],
+        "estimated_annual": "$8M",
+    },
+    "oscar_piastri": {
+        "sponsors": [
+            {"brand": "McLaren",    "category": "automotive",   "status": "current"},
+            {"brand": "Hilton",     "category": "lifestyle",    "status": "current"},
+            {"brand": "OKX",        "category": "finance",      "status": "current"},
+        ],
+        "estimated_annual": "$6M",
+    },
+    "sergio_pérez": {
+        "sponsors": [
+            {"brand": "Red Bull",   "category": "food_beverage","status": "current"},
+            {"brand": "Telcel",     "category": "technology",   "status": "current"},
+            {"brand": "Claro",      "category": "technology",   "status": "current"},
+        ],
+        "estimated_annual": "$10M",
+    },
+    "nico_hülkenberg": {
+        "sponsors": [
+            {"brand": "Audi",       "category": "automotive",   "status": "current"},
+            {"brand": "Haas",       "category": "automotive",   "status": "current"},
+        ],
+        "estimated_annual": "$3M",
     },
 }
 
