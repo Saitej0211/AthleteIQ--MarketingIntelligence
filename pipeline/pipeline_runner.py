@@ -45,11 +45,17 @@ def _run_stage2(athlete_row: dict) -> dict:
 def _run_social_media(athlete_name: str, slug: str) -> dict:
     from scrapers.social_media.instagram_scraper import scrape_instagram
     from scrapers.social_media.youtube_scraper   import scrape_youtube
+    from scrapers.social_media.tiktok_scraper    import scrape_tiktok
+    from scrapers.social_media.twitter_scraper   import scrape_twitter
+    from scrapers.social_media.facebook_scraper  import scrape_facebook
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as pool:
         futures = {
             "instagram": pool.submit(scrape_instagram, athlete_name, slug),
             "youtube":   pool.submit(scrape_youtube,   athlete_name, slug),
+            "tiktok":    pool.submit(scrape_tiktok,    athlete_name, slug),
+            "twitter":   pool.submit(scrape_twitter,   athlete_name, slug),
+            "facebook":  pool.submit(scrape_facebook,  athlete_name, slug),
         }
         return {k: f.result() for k, f in futures.items()}
 
@@ -103,7 +109,13 @@ def run_athlete(athlete_row: dict) -> dict:
 
     final = {
         **profile,
-        "social_media":  social,
+        "social_media": {
+            "instagram": social.get("instagram", {}),
+            "youtube":   social.get("youtube",   {}),
+            "tiktok":    social.get("tiktok",    {}),
+            "twitter":   social.get("twitter",   {}),
+            "facebook":  social.get("facebook",  {}),
+        },
         "trends":        trends,
         "sponsorships":  spon,
         "brand_power":   scores,

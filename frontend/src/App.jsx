@@ -2,32 +2,23 @@ import { useState } from "react";
 import TitlePage from "./TitlePage.jsx";
 import AthleteCards from "./AthleteCards.jsx";
 
+// ── App ───────────────────────────────────────────────────────────────────────
 export default function App() {
-  const [page, setPage] = useState("title");
+  const [page,  setPage]  = useState("title");
   const [sport, setSport] = useState("All");
-  const [fading, setFading] = useState(false);
 
-  const goToCards = (selectedSport = "All") => {
-    setFading(true);
-    setTimeout(() => {
-      setSport(selectedSport);
-      setPage("cards");
-      setFading(false);
-    }, 350);
-  };
+  function navigate(toSport, toPage) {
+    setSport(toSport);
+    setPage(toPage);
+  }
 
-  const goToTitle = () => {
-    setFading(true);
-    setTimeout(() => {
-      setPage("title");
-      setFading(false);
-    }, 350);
-  };
+  const goToCards = (s = "All") => navigate(s, "cards");
+  const goToTitle = ()           => navigate(sport, "title");
 
   return (
-    <div style={{ opacity: fading ? 0 : 1, transition: "opacity 0.35s ease" }}>
+    <div style={{ width: "100%" }}>
       {page === "title"
-        ? <TitlePage onEnter={goToCards} />
+        ? <TitlePage  onEnter={goToCards} />
         : <AthleteCards sport={sport} onBack={goToTitle} />}
     </div>
   );

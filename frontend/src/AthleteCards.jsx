@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { ALL_PLAYERS as PIPELINE_PLAYERS } from "./playersData.js";
 
 function useWidth() {
@@ -13,7 +14,9 @@ function useWidth() {
 
 const fmt = n => n >= 1e9 ? (n/1e9).toFixed(1)+"B" : n >= 1e6 ? (n/1e6).toFixed(0)+"M" : n >= 1e3 ? (n/1e3).toFixed(0)+"K" : String(n);
 
-const JUNK_BRAND = /^[a-z]|^\d|\d{4}|US Open|Championship|Grand Slam|tournament|federation|Wikipedia|open$/i;
+// Filter out wiki-noise: lowercase-start strings, year numbers, tournament names.
+// No `i` flag — brand names like "Nike", "BMW", "IWC" all start with uppercase and must NOT be filtered.
+const JUNK_BRAND = /^[a-z]|^\d|\d{4}|US Open|Championship|Grand Slam|tournament|federation|Wikipedia|open$/;
 function cleanSponsors(raw = []) {
   return raw
     .map(s => s
@@ -37,16 +40,49 @@ const SPORT_CFG = {
   "Formula 1":        { emoji:"🏎️", accent:"#f87171",  dim:"#dc2626" },
 };
 
+// ── Scoring lenses ─────────────────────────────────────────────────────────
+const LENSES = [
+  { id:"overall",  label:"Overall",   emoji:"🎯", color:"#d4af37",
+    weights:{ soc:25, eng:30, gro:20, spo:15, rea:10 } },
+  { id:"social",   label:"Social",    emoji:"📱", color:"#4ade80",
+    weights:{ soc:40, eng:35, gro:15, spo:5,  rea:5  } },
+  { id:"brand",    label:"Brand",     emoji:"💼", color:"#a78bfa",
+    weights:{ soc:15, eng:15, gro:5,  spo:40, rea:25 } },
+  { id:"athletic", label:"Athletic",  emoji:"🏆", color:"#fb923c",
+    weights:{ soc:10, eng:20, gro:30, spo:5,  rea:35 } },
+];
+
+// Redistributes weights of absent/missing metrics proportionally among those
+// that DO have data, then computes a weighted score on 0–100.
+function computeLensScore(p, weights) {
+  const sub  = p.sub || {};
+  const rows = [
+    { key:"soc", val:sub.social||0, has:(p.ig||0)+(p.tt||0)+(p.yt||0)>0 },
+    { key:"eng", val:sub.eng||0,    has:(p.ig_eng||0)>0||(sub.eng||0)>0  },
+    { key:"gro", val:sub.trend||0,  has:(p.trend||0)>0                   },
+    { key:"spo", val:sub.spon||0,   has:(p.sponsors?.length||0)>0||(sub.spon||0)>0 },
+    { key:"rea", val:sub.val||0,    has:(p.market_value||0)>0||(sub.val||0)>0      },
+  ];
+  const present = rows.filter(r => r.has);
+  if (!present.length) return p.brand_score || 0;
+  const absW  = rows.filter(r => !r.has).reduce((s,r)=>s+(weights[r.key]||0), 0);
+  const presW = present.reduce((s,r)=>s+(weights[r.key]||0), 0);
+  return Math.round(present.reduce((sum,r) => {
+    const eff = (weights[r.key]||0) + (presW>0 ? absW*(weights[r.key]||0)/presW : 0);
+    return sum + r.val * eff / 100;
+  }, 0) * 10) / 10;
+}
+
 // Sport-specific Unsplash background images
 const SPORT_BG = {
   "Featured":          { url:"https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=1920&q=75", tint:"rgba(100,80,20,0.45)" },
   "All":               { url:"https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=1920&q=75", tint:"rgba(60,20,100,0.45)" },
   "Soccer":            { url:"https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=1920&q=75", tint:"rgba(10,80,20,0.5)"  },
-  "Basketball":        { url:"https://images.unsplash.com/photo-1546519638405-a4c7a8960d25?auto=format&fit=crop&w=1920&q=75", tint:"rgba(160,60,0,0.5)"  },
+  "Basketball":        { url:"https://images.unsplash.com/photo-1674327175233-51f4d1430eac?auto=format&fit=crop&w=1920&q=75", tint:"rgba(160,60,0,0.5)"  },
   "Tennis":            { url:"https://images.unsplash.com/photo-1554068865-24cecd4e34b8?auto=format&fit=crop&w=1920&q=75", tint:"rgba(80,0,140,0.5)"  },
   "American Football": { url:"https://images.unsplash.com/photo-1566577739112-5180d4bf9390?auto=format&fit=crop&w=1920&q=75", tint:"rgba(0,40,120,0.5)"  },
   "Cricket":           { url:"https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?auto=format&fit=crop&w=1920&q=75", tint:"rgba(0,60,100,0.5)"  },
-  "Formula 1":         { url:"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1920&q=75", tint:"rgba(140,10,10,0.5)"  },
+  "Formula 1":         { url:"https://images.unsplash.com/photo-1752884991461-8ac432ad9266?auto=format&fit=crop&w=1920&q=75", tint:"rgba(140,10,10,0.5)"  },
 };
 
 // Short name overrides for pipeline athletes with awkward auto-generated names
@@ -75,109 +111,133 @@ const FEATURED_PLAYERS = [
     image:"https://upload.wikimedia.org/wikipedia/commons/9/9c/President_Donald_Trump_meets_with_Cristiano_Ronaldo_in_the_Oval_Office_%2854933344262%29_%28cropped_and_rotated%29.jpg",
     bio:"Nicknamed CR7, widely regarded as one of the greatest footballers ever. Five-time Ballon d'Or winner and record scorer with a global audience of billions.",
     brand_score:86.8, tier:"Elite Influencer",
-    ig:625e6, ig_eng:2.1, tt:22e6, fb:168e6, yt:65e6,
+    ig:625e6, ig_eng:2.1, tt:22e6, tw:107e6, fb:168e6, yt:65e6,
     trend:45, trend_dir:"declining", market_value:152.6,
     sub:{social:100,eng:100,trend:37,spon:100,val:93.7},
-    sponsors:["Nike","Binance","Herbalife","Tag Heuer"], featured:true },
+    sponsors:["Nike","Binance","Herbalife","Tag Heuer"],
+    deal_val:60, titles:"5× Ballon d'Or · UCL ×5 · Euro 2016 · Nations League",
+    featured:true },
   { slug:"kylian_mbappe", name:"Kylian Mbappe", short:"MBAPPE", position:"Forward",
     team:"Real Madrid", nationality:"France", age:27, sport:"Soccer",
     image:"https://upload.wikimedia.org/wikipedia/commons/6/66/Picture_with_Mbapp%C3%A9_%28cropped_and_rotated%29.jpg",
     bio:"One of the best players in the world, known for pace, dribbling and clinical finishing. World Cup winner and the face of a new generation of football.",
     brand_score:85.7, tier:"Elite Influencer",
-    ig:110e6, ig_eng:3.2, tt:45e6, fb:28e6, yt:12e6,
+    ig:110e6, ig_eng:3.2, tt:45e6, tw:12e6, fb:28e6, yt:12e6,
     trend:33, trend_dir:"rising", market_value:171.2,
     sub:{social:90,eng:100,trend:41,spon:100,val:100},
-    sponsors:["Nike","Hublot","EA Sports","Dior"], featured:true },
+    sponsors:["Nike","Hublot","EA Sports","Dior"],
+    deal_val:55, titles:"World Cup 2018 · UCL 2024 · Euro 2024 · Ligue 1 ×7",
+    featured:true },
   { slug:"lionel_messi", name:"Lionel Messi", short:"MESSI", position:"Forward",
     team:"Inter Miami", nationality:"Argentina", age:38, sport:"Soccer",
     image:"https://upload.wikimedia.org/wikipedia/commons/6/6b/Lionel_Messi_White_House_2026_%283x4_cropped%29.jpg",
     bio:"The most decorated player in football history. Eight Ballon d'Or awards. World Cup champion 2022. Currently captains Inter Miami in MLS.",
     brand_score:84.3, tier:"Elite Influencer",
-    ig:503e6, ig_eng:2.8, tt:12e6, fb:116e6, yt:8.5e6,
+    ig:503e6, ig_eng:2.8, tt:12e6, tw:50e6, fb:116e6, yt:8.5e6,
     trend:42, trend_dir:"stable", market_value:74.7,
     sub:{social:100,eng:100,trend:42,spon:100,val:58.6},
-    sponsors:["Adidas","Pepsi","Apple","Mastercard"], featured:true },
+    sponsors:["Adidas","Pepsi","Apple","Mastercard"],
+    deal_val:75, titles:"8× Ballon d'Or · World Cup 2022 · Copa América ×3",
+    featured:true },
   { slug:"lebron_james", name:"LeBron James", short:"LEBRON", position:"Small Forward",
     team:"LA Lakers", nationality:"Global", age:41, sport:"Basketball",
     image:"https://upload.wikimedia.org/wikipedia/commons/7/7a/LeBron_James_%2851959977144%29_%28cropped2%29.jpg",
     bio:"NBA all-time leading scorer and 4x champion. Beyond basketball, LeBron built SpringHill Entertainment — the most business-savvy athlete alive.",
     brand_score:83.2, tier:"Elite Influencer",
-    ig:159e6, ig_eng:1.9, tt:11e6, fb:29e6, yt:0.5e6,
+    ig:159e6, ig_eng:1.9, tt:11e6, tw:51e6, fb:29e6, yt:0.5e6,
     trend:69, trend_dir:"stable", market_value:57.1,
     sub:{social:90.3,eng:89.3,trend:69,spon:100,val:50.7},
-    sponsors:["Nike","PepsiCo","AT&T","Beats by Dre"], featured:true },
+    sponsors:["Nike","PepsiCo","AT&T","Beats by Dre"],
+    deal_val:65, titles:"NBA Champion ×4 · Finals MVP ×4 · Olympic Gold ×2",
+    featured:true },
   { slug:"novak_djokovic", name:"Novak Djokovic", short:"DJOKOVIC", position:"Player",
     team:"ATP Tour", nationality:"Serbia", age:39, sport:"Tennis",
     image:"https://upload.wikimedia.org/wikipedia/commons/d/d7/Novak_Djokovic_2024_Paris_Olympics.jpg",
     bio:"Record 24 Grand Slam titles and ATP No. 1 for 428 weeks. The most successful men's singles player in tennis history.",
     brand_score:78.6, tier:"Major Star",
-    ig:14.5e6, ig_eng:3.1, tt:0.8e6, fb:10e6, yt:0.19e6,
+    ig:14.5e6, ig_eng:3.1, tt:0.8e6, tw:6e6, fb:10e6, yt:0.19e6,
     trend:87, trend_dir:"stable", market_value:9.6,
     sub:{social:68.5,eng:90.2,trend:87,spon:94,val:29.3},
-    sponsors:["Lacoste","Asics","Head","Hublot"], featured:true },
+    sponsors:["Lacoste","Asics","Head","Hublot"],
+    deal_val:30, titles:"24× Grand Slam · ATP No.1 ×428 weeks · Olympic Gold 2024",
+    featured:true },
   { slug:"micah_parsons", name:"Micah Parsons", short:"PARSONS", position:"Linebacker",
     team:"Green Bay Packers", nationality:"USA", age:27, sport:"American Football",
     image:"https://upload.wikimedia.org/wikipedia/commons/f/f8/2025_Commanders_at_Packers_Micah_Parsons_%28cropped%29.jpg",
     bio:"Dominant pass-rusher and one of the NFL's most electrifying defensive players. Rising brand with a 97/100 trend score — the hottest name in football.",
     brand_score:78.1, tier:"Major Star",
-    ig:6.3e6, ig_eng:5.4, tt:2.4e6, fb:3.2e6, yt:0.127e6,
+    ig:6.3e6, ig_eng:5.4, tt:2.4e6, tw:0.7e6, fb:3.2e6, yt:0.127e6,
     trend:97, trend_dir:"rising", market_value:18.2,
     sub:{social:60.7,eng:100,trend:100,spon:64,val:33.2},
-    sponsors:["Under Armour","Mercedes-Benz","Apple","Bud Light"], featured:true },
+    sponsors:["Under Armour","Mercedes-Benz","Apple","Bud Light"],
+    deal_val:8, titles:"NFL DPOY 2021 · 2× All-Pro · AP All-Pro First Team 2022",
+    featured:true },
   { slug:"stephen_curry", name:"Stephen Curry", short:"CURRY", position:"Point Guard",
     team:"Golden State Warriors", nationality:"Global", age:38, sport:"Basketball",
     image:"https://upload.wikimedia.org/wikipedia/commons/5/52/Stephen_Curry%2C_Olympic_Games_2024_%28cropped%29.jpg",
     bio:"Revolutionised basketball with the 3-point shot. 4x NBA champion. Olympic gold medalist. One of the most recognisable athletes in the world.",
     brand_score:74.6, tier:"Major Star",
-    ig:56e6, ig_eng:2.4, tt:5.8e6, fb:15e6, yt:1.4e6,
+    ig:56e6, ig_eng:2.4, tt:5.8e6, tw:17e6, fb:15e6, yt:1.4e6,
     trend:35, trend_dir:"declining", market_value:41.8,
     sub:{social:80.4,eng:100,trend:27,spon:98,val:43.8},
-    sponsors:["Under Armour","Chase","Callaway","Subway"], featured:true },
+    sponsors:["Under Armour","Chase","Callaway","Subway"],
+    deal_val:50, titles:"NBA Champion ×4 · 2× MVP · Olympic Gold 2024",
+    featured:true },
   { slug:"patrick_mahomes", name:"Patrick Mahomes", short:"MAHOMES", position:"Quarterback",
     team:"Kansas City Chiefs", nationality:"Global", age:30, sport:"American Football",
     image:"https://upload.wikimedia.org/wikipedia/commons/9/92/Patrick_Mahomes_%2851615475056%29.jpg",
     bio:"Three-time Super Bowl champion and back-to-back MVP. Widely considered the best QB in the NFL. A generational talent with growing commercial appeal.",
     brand_score:74.1, tier:"Major Star",
-    ig:6.7e6, ig_eng:4.1, tt:1.5e6, fb:1.2e6, yt:0.12e6,
+    ig:6.7e6, ig_eng:4.1, tt:1.5e6, tw:3e6, fb:1.2e6, yt:0.12e6,
     trend:79, trend_dir:"stable", market_value:16.8,
     sub:{social:58.1,eng:94.4,trend:79,spon:81.6,val:32.6},
-    sponsors:["Adidas","Oakley","State Farm","Subway"], featured:true },
+    sponsors:["Adidas","Oakley","State Farm","Subway"],
+    deal_val:20, titles:"3× Super Bowl · 3× SB MVP · 2× NFL MVP",
+    featured:true },
   { slug:"victor_wembanyama", name:"Victor Wembanyama", short:"WEMBY", position:"Center",
     team:"San Antonio Spurs", nationality:"France", age:22, sport:"Basketball",
     image:"https://upload.wikimedia.org/wikipedia/commons/6/65/Victor_Wembanyama_San_Antonio_Spurs_2024.jpg",
     bio:"Nicknamed the Alien. At 22, already the most unique talent in NBA history. A once-in-a-generation player with massive long-term brand upside.",
     brand_score:73.5, tier:"Major Star",
-    ig:12.3e6, ig_eng:3.6, tt:7.3e6, fb:6.5e6, yt:0.62e6,
+    ig:12.3e6, ig_eng:3.6, tt:7.3e6, tw:1.5e6, fb:6.5e6, yt:0.62e6,
     trend:77, trend_dir:"declining", market_value:11.1,
     sub:{social:69,eng:94.2,trend:69,spon:74.6,val:30},
-    sponsors:["Puma","Red Bull","Porsche","TAG Heuer"], featured:true },
+    sponsors:["Puma","Red Bull","Porsche","TAG Heuer"],
+    deal_val:15, titles:"NBA Rookie of the Year 2024 · 2× All-Star · All-NBA First Team",
+    featured:true },
   { slug:"iga_swiatek", name:"Iga Swiatek", short:"SWIATEK", position:"Player",
     team:"WTA Tour", nationality:"Global", age:24, sport:"Tennis",
     image:"https://upload.wikimedia.org/wikipedia/commons/9/98/Iga_Swiatek_2023_Cropped_%2B_Retouched.jpg",
     bio:"World No. 3 and former No. 1 for 125 weeks. Four Roland Garros titles. Rising star with a perfect trend score — tennis's fastest growing brand.",
     brand_score:73.4, tier:"Major Star",
-    ig:4.3e6, ig_eng:3.9, tt:1.8e6, fb:1.98e6, yt:0.086e6,
+    ig:4.3e6, ig_eng:3.9, tt:1.8e6, tw:1e6, fb:1.98e6, yt:0.086e6,
     trend:95, trend_dir:"rising", market_value:22.1,
     sub:{social:56.5,eng:89.4,trend:100,spon:59.6,val:34.9},
-    sponsors:["New Balance","Crypto.com","Ford","Rolex"], featured:true },
+    sponsors:["New Balance","Crypto.com","Ford","Rolex"],
+    deal_val:10, titles:"4× French Open · WTA No.1 ×125 weeks · 5× Roland Garros",
+    featured:true },
   { slug:"christian_mccaffrey", name:"Christian McCaffrey", short:"McCAFFREY", position:"Running Back",
     team:"San Francisco 49ers", nationality:"Global", age:29, sport:"American Football",
     image:"https://upload.wikimedia.org/wikipedia/commons/e/ee/Christian_McCaffrey_2019.jpg",
     bio:"The most complete running back in the NFL. Two-time All-Pro. Consistent performer with strong brand values and growing crossover appeal.",
     brand_score:73.1, tier:"Major Star",
-    ig:5e6, ig_eng:4.3, tt:1.65e6, fb:2.35e6, yt:0.65e6,
+    ig:5e6, ig_eng:4.3, tt:1.65e6, tw:0.4e6, fb:2.35e6, yt:0.65e6,
     trend:88, trend_dir:"stable", market_value:22.6,
     sub:{social:58.3,eng:89.6,trend:88,spon:70.4,val:35.2},
-    sponsors:["Adidas","Pepsi","Coca-Cola","Red Bull"], featured:true },
+    sponsors:["Adidas","Pepsi","Coca-Cola","Red Bull"],
+    deal_val:8, titles:"2× All-Pro · 2× NFL Offensive POY · Super Bowl LVIII",
+    featured:true },
   { slug:"shai_gilgeous_alexander", name:"Shai Gilgeous-Alexander", short:"SGA", position:"Point Guard",
     team:"OKC Thunder", nationality:"Global", age:27, sport:"Basketball",
     image:"https://upload.wikimedia.org/wikipedia/commons/8/8c/2023-08-09_Deutschland_gegen_Kanada_%28Basketball-L%C3%A4nderspiel%29_by_Sandro_Halank%E2%80%93109.jpg",
     bio:"Nicknamed SGA. The NBA scoring champion and the coolest brand in basketball. Known as much for his fashion sense as his silky scoring ability.",
     brand_score:73.1, tier:"Major Star",
-    ig:12.4e6, ig_eng:3.3, tt:6.1e6, fb:3.7e6, yt:1.73e6,
+    ig:12.4e6, ig_eng:3.3, tt:6.1e6, tw:0.3e6, fb:3.7e6, yt:1.73e6,
     trend:63, trend_dir:"stable", market_value:16.7,
     sub:{social:67.9,eng:99.8,trend:63,spon:69,val:32.5},
-    sponsors:["New Balance","TAG Heuer","Bud Light","Richard Mille"], featured:true },
+    sponsors:["New Balance","TAG Heuer","Bud Light","Richard Mille"],
+    deal_val:12, titles:"NBA Scoring Champion 2024 · 2× All-NBA First Team · MVP Finalist",
+    featured:true },
 ];
 
 // ── Shared background / rune ────────────────────────────────────────────────
@@ -228,7 +288,7 @@ function SportBg({ sport }) {
 }
 
 // ── Single athlete card ──────────────────────────────────────────────────────
-function SportCard({ p, position, cardW, cardH, imgH, xs, sm, lg, onCardClick }) {
+function SportCard({ p, position, cardW, cardH, imgH, xs, sm, lg, onCardClick, lensScore, lensColor }) {
   const [imgError, setImgError] = useState(false);
   // Reset error flag whenever the displayed player changes
   useEffect(() => { setImgError(false); }, [p.slug, p.name]);
@@ -294,9 +354,9 @@ function SportCard({ p, position, cardW, cardH, imgH, xs, sm, lg, onCardClick })
           </div>
         )}
         {/* Score */}
-        <div style={{ position:"absolute", top:10, left:10, background:"rgba(0,0,0,0.78)", border:`1px solid ${isCenter ? "#d4af37" : "rgba(255,255,255,0.2)"}`, borderRadius:8, padding:"4px 8px", display:"flex", flexDirection:"column", alignItems:"center" }}>
-          <span style={{ fontSize:scoreFz, fontWeight:"900", color:isCenter?"#d4af37":"#fff", lineHeight:1 }}>{p.brand_score}</span>
-          <span style={{ fontSize:6, color:"rgba(255,255,255,0.5)", letterSpacing:0.5 }}>SCORE</span>
+        <div style={{ position:"absolute", top:10, left:10, background:"rgba(0,0,0,0.78)", border:`1px solid ${lensScore ? (lensColor||"#d4af37") : isCenter ? "#d4af37" : "rgba(255,255,255,0.2)"}`, borderRadius:8, padding:"4px 8px", display:"flex", flexDirection:"column", alignItems:"center" }}>
+          <span style={{ fontSize:scoreFz, fontWeight:"900", color: lensScore ? (lensColor||"#d4af37") : isCenter ? "#d4af37" : "#fff", lineHeight:1 }}>{lensScore ?? p.brand_score}</span>
+          <span style={{ fontSize:6, color: lensScore ? (lensColor||"rgba(255,255,255,0.5)") : "rgba(255,255,255,0.5)", letterSpacing:0.5 }}>{lensScore ? "LENS" : "SCORE"}</span>
         </div>
       </div>
 
@@ -353,9 +413,10 @@ function EmptyState({ sport, onBack }) {
 }
 
 // ── Full athlete profile page ────────────────────────────────────────────────
-function ProfilePage({ p, allPlayers, profileIdx, onNavigate, onClose, xs, sm, lg }) {
-  const [visible, setVisible]   = useState(false);
-  const [imgError, setImgError] = useState(false);
+function ProfilePage({ p, allPlayers, profileIdx, onNavigate, onClose, xs, sm, lg, lensId, onLensChange }) {
+  const [visible,      setVisible]      = useState(false);
+  const [imgError,     setImgError]     = useState(false);
+  const [showInfoPane, setShowInfoPane] = useState(false);
   useEffect(() => { const t = setTimeout(() => setVisible(true), 20); return () => clearTimeout(t); }, []);
   useEffect(() => { setImgError(false); }, [p.slug, p.name]);
 
@@ -365,19 +426,53 @@ function ProfilePage({ p, allPlayers, profileIdx, onNavigate, onClose, xs, sm, l
   const bg       = SPORT_BG[p.sport] || SPORT_BG["All"];
   const n        = allPlayers.length;
 
+  // ── Lens + missing-data computation ────────────────────────────────────────
+  const activeLens = LENSES.find(l => l.id === (lensId||"overall")) || LENSES[0];
+  const lw = activeLens.weights;
+
+  // Which metrics actually have real data for this athlete?
+  const dataFlags = {
+    soc: (p.ig||0)+(p.tt||0)+(p.yt||0) > 0,
+    eng: (p.ig_eng||0) > 0 || (safeSub.eng||0) > 0,
+    gro: (p.trend||0) > 0,
+    spo: (p.sponsors?.length||0) > 0 || (safeSub.spon||0) > 0,
+    rea: (p.market_value||0) > 0 || (safeSub.val||0) > 0,
+  };
+  // Redistribute absent metric weights among present ones
+  const absW  = Object.entries(lw).reduce((s,[k,w]) => dataFlags[k] ? s : s+w, 0);
+  const presW = Object.entries(lw).reduce((s,[k,w]) => dataFlags[k] ? s+w : s, 0);
+  const effW  = Object.fromEntries(
+    Object.entries(lw).map(([k,w]) => [k, dataFlags[k] ? Math.round(w+(presW>0?absW*w/presW:0)) : 0])
+  );
+  const dynScore = computeLensScore(p, lw);
+  // ─────────────────────────────────────────────────────────────────────────
+
   const handleClose = () => { setVisible(false); setTimeout(onClose, 280); };
 
   const metrics = [
-    { short:"SOC", label:"Social Reach",  value:Math.round(safeSub.social||0), color:"#4ade80", desc:"Cross-platform followers · 25%" },
-    { short:"ENG", label:"Engagement",    value:Math.round(safeSub.eng||0),    color:"#f472b6", desc:"Instagram engagement rate · 30%" },
-    { short:"SPO", label:"Sponsorship",   value:Math.round(safeSub.spon||0),   color:"#a78bfa", desc:"Deal count & value · 15%" },
-    { short:"GRO", label:"Growth Trend",  value:Math.round(safeSub.trend||0),  color:"#fbbf24", desc:"Google Trends 12-month · 20%" },
-    { short:"REA", label:"Market Value",  value:Math.round(safeSub.val||0),    color:"#fb923c", desc:"Athletic market value · 10%" },
-    { short:"VAL", label:"Deal Value",    value:p.market_value>0 ? Math.round(p.market_value/1.712) : 0, color:"#38bdf8", desc:"Est. annual sponsorship $M" },
+    { short:"SOC", key:"soc", label:"Social Reach",  value:Math.round(safeSub.social||0), color:"#4ade80",
+      effW:effW.soc, hasData:dataFlags.soc,
+      desc: dataFlags.soc ? `IG · TikTok · Twitter · YT · FB · ${effW.soc}%` : "No platform data available" },
+    { short:"ENG", key:"eng", label:"Engagement",    value:Math.round(safeSub.eng||0),    color:"#f472b6",
+      effW:effW.eng, hasData:dataFlags.eng,
+      desc: dataFlags.eng ? `Instagram (45%) · TikTok (25%) · YouTube (30%) · ${effW.eng}%` : "Engagement data unavailable" },
+    { short:"SPO", key:"spo", label:"Sponsorship",   value:Math.round(safeSub.spon||0),   color:"#a78bfa",
+      effW:effW.spo, hasData:dataFlags.spo,
+      desc: dataFlags.spo ? `${(p.sponsors?.length||0)} active deals · ${effW.spo}%` : "Sponsorship data unavailable · weight redistributed" },
+    { short:"GRO", key:"gro", label:"Growth Trend",  value:Math.round(safeSub.trend||0),  color:"#fbbf24",
+      effW:effW.gro, hasData:dataFlags.gro,
+      desc: dataFlags.gro ? `Google Trends 12-month · ${effW.gro}%` : "No regional Trends data · weight redistributed" },
+    { short:"REA", key:"rea", label:"Market Value",  value:Math.round(safeSub.val||0),    color:"#fb923c",
+      effW:effW.rea, hasData:dataFlags.rea,
+      desc: dataFlags.rea ? `Athletic market value · ${effW.rea}%` : "Market data unavailable · weight redistributed" },
+    { short:"VAL", key:"val", label:"Deal Value",    value: p.deal_val || (p.market_value>0 ? Math.round(p.market_value/1.712) : 0), color:"#38bdf8",
+      effW:null, hasData:!!(p.deal_val||(p.market_value>0)),
+      desc: p.deal_val ? `$${p.deal_val}M est. annual deals` : "Est. annual sponsorship $M" },
   ];
   const socials = [
     { icon:"📸", label:"Instagram", value:p.ig,  sub: p.ig_eng ? `${p.ig_eng}% eng` : null },
     { icon:"🎵", label:"TikTok",    value:p.tt,  sub:null },
+    { icon:"🐦", label:"Twitter/X", value:p.tw,  sub:null },
     { icon:"▶️", label:"YouTube",   value:p.yt,  sub:null },
     { icon:"📘", label:"Facebook",  value:p.fb,  sub:null },
   ].filter(s => s.value > 0);
@@ -404,7 +499,13 @@ function ProfilePage({ p, allPlayers, profileIdx, onNavigate, onClose, xs, sm, l
         <span style={{ fontSize: xs ? 8 : sm ? 9 : 10, color:"rgba(255,255,255,0.3)", letterSpacing:3 }}>
           {String(profileIdx+1).padStart(2,"0")} / {String(n).padStart(2,"0")}
         </span>
-        <div style={{ display:"flex", gap:6 }}>
+        <div style={{ display:"flex", gap: xs ? 5 : 6, alignItems:"center" }}>
+          <button onClick={() => setShowInfoPane(v => !v)} style={{ background:"none", border:"none", cursor:"pointer", display:"flex", alignItems:"center", gap:5, color:"rgba(255,255,255,0.75)", fontSize: xs ? 11 : sm ? 12 : 13, fontWeight:"700", letterSpacing:2 }}>
+            <div style={{ width:26, height:26, borderRadius:4, border:`2px solid ${showInfoPane ? "#5bc4c0" : "#5bc4c0aa"}`, display:"flex", alignItems:"center", justifyContent:"center", background: showInfoPane ? "rgba(91,196,192,0.15)" : "transparent", transition:"all 0.2s" }}>
+              <span style={{ fontSize:11, color:"#5bc4c0" }}>i</span>
+            </div>
+            {!sm && <span style={{ color:"#5bc4c0" }}>INFO</span>}
+          </button>
           {[[-1,"←"],[1,"→"]].map(([dir,lbl]) => (
             <button key={dir} onClick={() => onNavigate(dir)} style={{ background:"rgba(0,0,0,0.5)", border:`1.5px solid ${cfg.accent}66`, borderRadius:6, width: lg ? 36 : 30, height: lg ? 36 : 30, cursor:"pointer", color:cfg.accent, fontSize: lg ? 16 : 14, display:"flex", alignItems:"center", justifyContent:"center" }}>{lbl}</button>
           ))}
@@ -452,7 +553,7 @@ function ProfilePage({ p, allPlayers, profileIdx, onNavigate, onClose, xs, sm, l
             {p.name}
           </h1>
           <p style={{ margin:"5px 0 0", fontSize: xs ? 10 : sm ? 11 : lg ? 15 : 13, color:"rgba(255,255,255,0.5)", letterSpacing:1 }}>
-            {p.team && p.team!=="nan" ? p.team : p.sport} · {p.position}
+            {p.team && p.team!=="nan" ? p.team : p.sport} · {p.position}{p.age ? ` · Age ${p.age}` : ""}
           </p>
         </div>
       </div>
@@ -475,6 +576,11 @@ function ProfilePage({ p, allPlayers, profileIdx, onNavigate, onClose, xs, sm, l
               💰 ${p.market_value}M market value
             </span>
           )}
+          {p.titles && (
+            <span style={{ padding: xs ? "4px 10px" : sm ? "5px 13px" : lg ? "7px 20px" : "6px 16px", borderRadius:20, background:"rgba(212,175,55,0.08)", border:"1px solid rgba(212,175,55,0.3)", color:"#d4af37", fontSize: xs ? 9 : sm ? 10 : lg ? 12 : 11, fontWeight:"700", letterSpacing:0.5 }}>
+              🏆 {p.titles}
+            </span>
+          )}
         </div>
 
         {/* Bio */}
@@ -492,23 +598,59 @@ function ProfilePage({ p, allPlayers, profileIdx, onNavigate, onClose, xs, sm, l
         <div style={{ textAlign:"center", marginBottom: xs ? 18 : 26 }}>
           <p style={{ margin:"0 0 4px", fontSize: xs ? 8 : sm ? 9 : lg ? 11 : 10, letterSpacing:4, color:"rgba(255,255,255,0.3)", textTransform:"uppercase" }}>BRAND POWER INDEX</p>
           <div style={{ fontSize: xs ? 52 : sm ? 64 : lg ? 100 : 84, fontWeight:"900", color:"#d4af37", lineHeight:1, textShadow:"0 0 60px rgba(212,175,55,0.4)" }}>{p.brand_score}</div>
+          {lensId !== "overall" && (
+            <div style={{ marginTop:10, display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
+              <span style={{ fontSize: xs?9:10, color:"rgba(255,255,255,0.25)", letterSpacing:2 }}>vs</span>
+              <div style={{ display:"inline-flex", alignItems:"center", gap:6, background:`${activeLens.color}1a`, border:`1px solid ${activeLens.color}55`, borderRadius:10, padding: xs?"4px 12px":"5px 16px" }}>
+                <span style={{ fontSize: xs?22:28, fontWeight:"900", color:activeLens.color, lineHeight:1 }}>{dynScore}</span>
+                <span style={{ fontSize: xs?8:9, color:activeLens.color, letterSpacing:1.5, fontWeight:"700" }}>{activeLens.emoji} {activeLens.label.toUpperCase()}</span>
+              </div>
+            </div>
+          )}
           <div style={{ width:56, height:3, background:`linear-gradient(90deg,transparent,#d4af37,transparent)`, margin:"10px auto 0" }}/>
+        </div>
+
+        {/* Scoring lens selector */}
+        <div style={{ marginBottom: xs ? 14 : 20 }}>
+          <p style={{ margin:"0 0 7px", fontSize: xs ? 7 : sm ? 8 : lg ? 10 : 9, letterSpacing:3, color:"rgba(255,255,255,0.25)", textTransform:"uppercase" }}>SCORING LENS</p>
+          <div style={{ display:"flex", flexWrap:"wrap", gap: xs ? 4 : 6 }}>
+            {LENSES.map(l => (
+              <button key={l.id} onClick={() => onLensChange && onLensChange(l.id)} style={{
+                padding: xs ? "4px 10px" : sm ? "5px 13px" : "6px 16px",
+                borderRadius: 20,
+                border: `1.5px solid ${lensId===l.id ? l.color : "rgba(255,255,255,0.12)"}`,
+                background: lensId===l.id ? `${l.color}22` : "transparent",
+                color: lensId===l.id ? l.color : "rgba(255,255,255,0.35)",
+                fontSize: xs ? 8 : sm ? 9 : 10, fontWeight:"700", letterSpacing:1.5,
+                cursor:"pointer", transition:"all 0.15s",
+                fontFamily:"'Arial Black',sans-serif",
+              }}>{l.emoji} {l.label.toUpperCase()}</button>
+            ))}
+          </div>
         </div>
 
         {/* Metrics grid */}
         <div style={{ display:"grid", gridTemplateColumns: xs ? "1fr 1fr" : sm ? "1fr 1fr" : "1fr 1fr 1fr", gap: xs ? 8 : sm ? 10 : lg ? 16 : 13, marginBottom: xs ? 20 : 28 }}>
-          {metrics.map(m => (
-            <div key={m.short} style={{ background:"rgba(255,255,255,0.04)", borderRadius:10, padding: xs ? "10px 11px" : sm ? "12px 13px" : lg ? "18px 22px" : "14px 17px", border:`1px solid ${m.color}1a` }}>
-              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"baseline", marginBottom:7 }}>
-                <span style={{ fontSize: xs ? 8 : sm ? 9 : lg ? 12 : 10, fontWeight:"900", color:m.color, letterSpacing:2 }}>{m.short}</span>
-                <span style={{ fontSize: xs ? 16 : sm ? 19 : lg ? 28 : 23, fontWeight:"900", color: m.value===0 ? "rgba(255,255,255,0.18)" : "#fff", lineHeight:1 }}>{m.value===0 ? "—" : m.value}</span>
+          {metrics.map(m => {
+            const missing = m.effW === 0 && m.short !== "VAL";
+            const borderCol = missing ? "rgba(255,255,255,0.05)" : lensId!=="overall" && m.effW > 0 ? `${m.color}33` : `${m.color}1a`;
+            const bgCol     = missing ? "rgba(255,255,255,0.02)" : "rgba(255,255,255,0.04)";
+            const barW      = missing ? 0 : Math.min(m.value, 100);
+            return (
+              <div key={m.short} style={{ background:bgCol, borderRadius:10, padding: xs ? "10px 11px" : sm ? "12px 13px" : lg ? "18px 22px" : "14px 17px", border:`1px solid ${borderCol}`, opacity: missing ? 0.5 : 1 }}>
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"baseline", marginBottom:7 }}>
+                  <span style={{ fontSize: xs ? 8 : sm ? 9 : lg ? 12 : 10, fontWeight:"900", color: missing ? "rgba(255,255,255,0.2)" : m.color, letterSpacing:2 }}>{m.short}</span>
+                  <span style={{ fontSize: xs ? 16 : sm ? 19 : lg ? 28 : 23, fontWeight:"900", color: (missing||m.value===0) ? "rgba(255,255,255,0.18)" : "#fff", lineHeight:1 }}>
+                    {(missing||m.value===0) ? "—" : m.value}
+                  </span>
+                </div>
+                <div style={{ height:3, background:"rgba(255,255,255,0.07)", borderRadius:2, marginBottom:6, overflow:"hidden" }}>
+                  <div style={{ width:`${barW}%`, height:"100%", background: missing ? "rgba(255,255,255,0.08)" : `linear-gradient(90deg,${m.color}88,${m.color})`, borderRadius:2, transition:"width 0.35s ease" }}/>
+                </div>
+                <p style={{ margin:0, fontSize: xs ? 7 : sm ? 8 : lg ? 10 : 9, color: missing ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.28)", lineHeight:1.4, fontStyle: missing ? "italic" : "normal" }}>{m.desc}</p>
               </div>
-              <div style={{ height:3, background:"rgba(255,255,255,0.07)", borderRadius:2, marginBottom:6, overflow:"hidden" }}>
-                <div style={{ width:`${Math.min(m.value,100)}%`, height:"100%", background:`linear-gradient(90deg,${m.color}88,${m.color})`, borderRadius:2 }}/>
-              </div>
-              <p style={{ margin:0, fontSize: xs ? 7 : sm ? 8 : lg ? 10 : 9, color:"rgba(255,255,255,0.28)", lineHeight:1.4 }}>{m.desc}</p>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Social media */}
@@ -537,12 +679,69 @@ function ProfilePage({ p, allPlayers, profileIdx, onNavigate, onClose, xs, sm, l
           </div>
         </>)}
       </div>
+
+      {/* ── Info overlay — portalled to body to escape ProfilePage's transform stacking context ── */}
+      {showInfoPane && createPortal(
+        <div
+          style={{ position:"fixed", inset:0, zIndex:9999, background:"rgba(0,0,0,0.88)", display:"flex", alignItems:"center", justifyContent:"center", padding: sm ? 16 : 24 }}
+          onClick={() => setShowInfoPane(false)}
+        >
+          <div
+            style={{ background:"#0e0e1a", border:"1px solid rgba(212,175,55,0.4)", borderRadius:14, padding: sm ? "18px 16px" : "24px 28px", maxWidth:560, width:"100%" }}
+            onClick={e => e.stopPropagation()}
+          >
+            <p style={{ margin:"0 0 16px", fontSize: sm ? 13 : 15, fontWeight:"900", color:"#d4af37", letterSpacing:2, textTransform:"uppercase", textAlign:"center" }}>How We Score Athletes</p>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:9, marginBottom:16 }}>
+              {[
+                { l:"SOC", e:"📱", n:"Social Reach",  c:"#4ade80", d:"Cross-platform follower total, normalised. 25% of final score." },
+                { l:"ENG", e:"💬", n:"Engagement",     c:"#f472b6", d:"IG (45%) · TikTok (25%) · YouTube (30%). 30% of final score — brands care most." },
+                { l:"SPO", e:"🤝", n:"Sponsorship",    c:"#a78bfa", d:"Deal count and estimated value. 15% of final score." },
+                { l:"GRO", e:"📈", n:"Growth",         c:"#fbbf24", d:"Google Trends 12-month trajectory. 20% of final score. Missing data → weight redistributed." },
+                { l:"REA", e:"🌍", n:"Market Value",   c:"#fb923c", d:"Athletic market value. On-field commercial relevance. 10%. Missing → redistributed." },
+                { l:"VAL", e:"💰", n:"Deal Value",     c:"#38bdf8", d:"Estimated annual sponsorship revenue in USD millions. Informational only." },
+              ].map(m => (
+                <div key={m.l} style={{ background:"rgba(255,255,255,0.04)", borderRadius:8, padding:"8px 10px", border:`0.5px solid ${m.c}33` }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:5, marginBottom:3 }}>
+                    <span style={{ fontSize:13 }}>{m.e}</span>
+                    <span style={{ fontSize: sm ? 10 : 11, fontWeight:"900", color:m.c }}>{m.l}</span>
+                    <span style={{ fontSize: sm ? 8 : 9, color:"rgba(255,255,255,0.35)" }}>{m.n}</span>
+                  </div>
+                  <p style={{ margin:0, fontSize: sm ? 8 : 9, color:"rgba(255,255,255,0.5)", lineHeight:1.5 }}>{m.d}</p>
+                </div>
+              ))}
+            </div>
+            {/* Scoring lens legend */}
+            <div style={{ marginBottom:14 }}>
+              <p style={{ margin:"0 0 8px", fontSize: sm ? 9 : 10, fontWeight:"900", color:"rgba(255,255,255,0.35)", letterSpacing:2, textTransform:"uppercase", textAlign:"center" }}>Scoring Lenses</p>
+              <div style={{ display:"flex", justifyContent:"center", gap:6, flexWrap:"wrap" }}>
+                {[["🎯","Overall","#d4af37","Balanced default weights"],["📱","Social","#4ade80","SOC 40% · ENG 35%"],["💼","Brand","#a78bfa","SPO 40% · REA 25%"],["🏆","Athletic","#fb923c","REA 35% · GRO 30%"]].map(([emoji,label,color,desc]) => (
+                  <div key={label} style={{ background:`${color}18`, border:`1px solid ${color}44`, borderRadius:8, padding:"5px 10px", textAlign:"center", minWidth:80 }}>
+                    <p style={{ margin:0, fontSize: sm ? 9 : 10, fontWeight:"900", color }}>{emoji} {label}</p>
+                    <p style={{ margin:0, fontSize: sm ? 7 : 8, color:"rgba(255,255,255,0.4)" }}>{desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Tier legend */}
+            <div style={{ display:"flex", justifyContent:"center", gap:8, flexWrap:"wrap" }}>
+              {[["80-100","Elite Influencer","#fbbf24"],["65-79","Major Star","#a78bfa"],["50-64","Rising Brand","#4ade80"],["0-49","Niche Power","#60a5fa"]].map(([r,t,c]) => (
+                <div key={t} style={{ background:`${c}18`, border:`1px solid ${c}55`, borderRadius:8, padding:"4px 12px", textAlign:"center" }}>
+                  <p style={{ margin:0, fontSize: sm ? 9 : 10, fontWeight:"900", color:c }}>{r}</p>
+                  <p style={{ margin:0, fontSize: sm ? 8 : 9, color:"rgba(255,255,255,0.5)" }}>{t}</p>
+                </div>
+              ))}
+            </div>
+            <p style={{ margin:"14px 0 0", textAlign:"center", fontSize:10, color:"rgba(255,255,255,0.25)" }}>Tap anywhere to close</p>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }
 
 // ── Grid card (compact, used in grid view) ───────────────────────────────────
-function GridCard({ p, onClick, xs, sm, lg, isActive }) {
+function GridCard({ p, onClick, xs, sm, lg, isActive, lensScore, lensColor }) {
   const [hover, setHover] = useState(false);
   const [imgError, setImgError] = useState(false);
   useEffect(() => { setImgError(false); }, [p.slug, p.name]);
@@ -582,8 +781,8 @@ function GridCard({ p, onClick, xs, sm, lg, isActive }) {
           />
         )}
         {/* Score badge */}
-        <div style={{ position: "absolute", top: 6, left: 6, zIndex: 2, background: "rgba(0,0,0,0.82)", border: `1px solid ${lit ? cfg.accent : "rgba(255,255,255,0.2)"}`, borderRadius: 5, padding: xs ? "2px 4px" : "2px 6px" }}>
-          <span style={{ fontSize: scoreFz, fontWeight: "900", color: lit ? cfg.accent : "#fff" }}>{p.brand_score}</span>
+        <div style={{ position: "absolute", top: 6, left: 6, zIndex: 2, background: "rgba(0,0,0,0.82)", border: `1px solid ${lensScore ? lensColor : lit ? cfg.accent : "rgba(255,255,255,0.2)"}`, borderRadius: 5, padding: xs ? "2px 4px" : "2px 6px" }}>
+          <span style={{ fontSize: scoreFz, fontWeight: "900", color: lensScore ? lensColor : lit ? cfg.accent : "#fff" }}>{lensScore ?? p.brand_score}</span>
         </div>
         {/* Sport emoji */}
         <div style={{ position: "absolute", top: 6, right: 6, zIndex: 2, fontSize: xs ? 10 : sm ? 11 : lg ? 15 : 13 }}>{cfg.emoji}</div>
@@ -626,17 +825,24 @@ export default function AthleteCards({ sport, onBack }) {
   const [showInfo, setShowInfo]   = useState(false);
   const [viewMode, setViewMode]   = useState("carousel"); // "carousel" | "grid"
   const [profileIdx, setProfileIdx] = useState(null);    // null = no profile open
+  const [lensId, setLensId]       = useState("overall");
   const touchStartX               = useRef(null);
+
+  const activeLens    = LENSES.find(l => l.id === lensId) || LENSES[0];
+  // Sort by lens score when a non-default lens is chosen
+  const displayPlayers = lensId === "overall"
+    ? players
+    : [...players].sort((a,b) => computeLensScore(b,activeLens.weights) - computeLensScore(a,activeLens.weights));
 
   const openProfile  = i => setProfileIdx(i);
   const closeProfile = () => setProfileIdx(null);
   const navProfile   = dir => setProfileIdx(i => (i + dir + n) % n);
 
-  const n       = players.length;
+  const n       = displayPlayers.length;
   const prev    = () => setIdx(i => (i - 1 + n) % n);
   const next    = () => setIdx(i => (i + 1) % n);
   const safeIdx = Math.min(idx, Math.max(0, n - 1));
-  const p       = players[safeIdx] || players[0];
+  const p       = displayPlayers[safeIdx] || displayPlayers[0];
   const cfg     = SPORT_CFG[p?.sport] || SPORT_CFG["Soccer"];
   const pSponsors = cleanSponsors(p.sponsors);
 
@@ -645,7 +851,7 @@ export default function AthleteCards({ sport, onBack }) {
   const cardH = xs ? 255 : sm ? 278 : md ? 335 : lg ? 390 : 360;
   const imgH  = xs ? 142 : sm ? 160 : md ? 195 : lg ? 230 : 215;
   const visibleOffsets = xs ? [-1, 0, 1] : sm ? [-1, 0, 1] : lg ? [-2, -1, 0, 1, 2] : [-2, -1, 0, 1, 2];
-  const getPlayer = off => players[(safeIdx + off + n) % n];
+  const getPlayer = off => displayPlayers[(safeIdx + off + n) % n];
 
   const onTouchStart = e => { touchStartX.current = e.touches[0].clientX; };
   const onTouchEnd   = e => {
@@ -707,6 +913,27 @@ export default function AthleteCards({ sport, onBack }) {
         ))}
       </div>
 
+      {/* Scoring lens selector */}
+      <div style={{ position:"relative", zIndex:20, display:"flex", justifyContent:"center", alignItems:"center", gap: xs?3:5, padding: xs?"2px 12px 5px":"3px 16px 7px", flexWrap:"nowrap", overflowX:"auto" }}>
+        {LENSES.map(l => (
+          <button key={l.id} onClick={() => { setLensId(l.id); setIdx(0); }} style={{
+            padding: xs ? "3px 8px" : sm ? "3px 11px" : "4px 14px",
+            borderRadius: 20,
+            border: `1px solid ${lensId===l.id ? l.color : "rgba(255,255,255,0.1)"}`,
+            background: lensId===l.id ? `${l.color}18` : "transparent",
+            color: lensId===l.id ? l.color : "rgba(255,255,255,0.3)",
+            fontSize: xs ? 8 : 9, fontWeight:"700", letterSpacing:1,
+            cursor:"pointer", transition:"all 0.15s",
+            fontFamily:"'Arial Black',sans-serif", whiteSpace:"nowrap",
+          }}>{l.emoji} {l.label.toUpperCase()}</button>
+        ))}
+        {lensId !== "overall" && (
+          <span style={{ fontSize: xs?7:8, color:activeLens.color, letterSpacing:1, marginLeft:3, fontStyle:"italic", opacity:0.7 }}>
+            sorted by {activeLens.label.toLowerCase()} score
+          </span>
+        )}
+      </div>
+
       {/* ── CAROUSEL MODE ─────────────────────────────────────────────────────── */}
       {viewMode === "carousel" && (<>
         <div
@@ -721,15 +948,21 @@ export default function AthleteCards({ sport, onBack }) {
             color:"#d4af37", fontSize: xs ? 14 : sm ? 16 : lg ? 22 : 20, display:"flex", alignItems:"center", justifyContent:"center",
           }}>&#9664;</button>
 
-          {visibleOffsets.map(offset => (
-            <SportCard
-              key={offset}
-              p={getPlayer(offset)}
-              position={offset}
-              cardW={cardW} cardH={cardH} imgH={imgH} xs={xs} sm={sm} lg={lg}
-              onCardClick={offset === 0 ? () => openProfile(safeIdx) : undefined}
-            />
-          ))}
+          {visibleOffsets.map(offset => {
+            const pl = getPlayer(offset);
+            const lScore = lensId !== "overall" ? computeLensScore(pl, activeLens.weights) : null;
+            return (
+              <SportCard
+                key={offset}
+                p={pl}
+                position={offset}
+                cardW={cardW} cardH={cardH} imgH={imgH} xs={xs} sm={sm} lg={lg}
+                lensScore={lScore}
+                lensColor={lensId!=="overall" ? activeLens.color : null}
+                onCardClick={offset === 0 ? () => openProfile(safeIdx) : undefined}
+              />
+            );
+          })}
 
           <button onClick={next} style={{
             position:"absolute", right: `calc(50% - ${Math.round(cardW * 0.5 + (xs || sm ? 44 : 56))}px)`, zIndex:30,
@@ -773,6 +1006,7 @@ export default function AthleteCards({ sport, onBack }) {
             <div style={{ display:"flex", flexWrap:"wrap", gap: xs ? 6 : sm ? 8 : 10, marginBottom:6 }}>
               {p.ig  > 0 && <span style={{ fontSize: xs ? 10 : sm ? 11 : lg ? 14 : 13, color:"rgba(255,255,255,0.45)" }}>📸 {fmt(p.ig)}</span>}
               {p.tt  > 0 && <span style={{ fontSize: xs ? 10 : sm ? 11 : lg ? 14 : 13, color:"rgba(255,255,255,0.45)" }}>🎵 {fmt(p.tt)}</span>}
+              {p.tw  > 0 && <span style={{ fontSize: xs ? 10 : sm ? 11 : lg ? 14 : 13, color:"rgba(255,255,255,0.45)" }}>🐦 {fmt(p.tw)}</span>}
               {p.yt  > 0 && <span style={{ fontSize: xs ? 10 : sm ? 11 : lg ? 14 : 13, color:"rgba(255,255,255,0.45)" }}>▶️ {fmt(p.yt)}</span>}
               {p.fb  > 0 && <span style={{ fontSize: xs ? 10 : sm ? 11 : lg ? 14 : 13, color:"rgba(255,255,255,0.45)" }}>📘 {fmt(p.fb)}</span>}
               <span style={{ fontSize: xs ? 10 : sm ? 11 : lg ? 14 : 13, color:TCOL[p.trend_dir] }}>📈 {p.trend} {TDIR[p.trend_dir]}</span>
@@ -798,13 +1032,15 @@ export default function AthleteCards({ sport, onBack }) {
           gap: xs ? 8 : sm ? 10 : lg ? 16 : 14,
           alignContent:"start",
         }}>
-          {players.map((pl, i) => (
+          {displayPlayers.map((pl, i) => (
             <GridCard
               key={pl.slug || pl.name}
               p={pl}
               xs={xs} sm={sm} lg={lg}
               isActive={i === safeIdx}
               onClick={() => openProfile(i)}
+              lensScore={lensId!=="overall" ? computeLensScore(pl,activeLens.weights) : null}
+              lensColor={lensId!=="overall" ? activeLens.color : null}
             />
           ))}
         </div>
@@ -813,12 +1049,14 @@ export default function AthleteCards({ sport, onBack }) {
       {/* Profile page */}
       {profileIdx !== null && (
         <ProfilePage
-          p={players[profileIdx]}
-          allPlayers={players}
+          p={displayPlayers[profileIdx]}
+          allPlayers={displayPlayers}
           profileIdx={profileIdx}
           onNavigate={navProfile}
           onClose={closeProfile}
           xs={xs} sm={sm} lg={lg}
+          lensId={lensId}
+          onLensChange={setLensId}
         />
       )}
 
@@ -830,7 +1068,7 @@ export default function AthleteCards({ sport, onBack }) {
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:9, marginBottom:16 }}>
               {[
                 {l:"SOC",e:"📱",n:"Social Reach",   c:"#4ade80",d:"Cross-platform follower total, normalised. 25% of final score."},
-                {l:"ENG",e:"💬",n:"Engagement",      c:"#f472b6",d:"Instagram engagement rate. Highest weight at 30% — brands care most."},
+                {l:"ENG",e:"💬",n:"Engagement",      c:"#f472b6",d:"IG (45%) · TikTok (25%) · YouTube (30%). 30% of final score — brands care most."},
                 {l:"SPO",e:"🤝",n:"Sponsorship",     c:"#a78bfa",d:"Deal count and estimated value. 15% of final score."},
                 {l:"GRO",e:"📈",n:"Growth",          c:"#fbbf24",d:"Google Trends 12-month trajectory. 20% of final score."},
                 {l:"REA",e:"🌍",n:"Market Value",    c:"#fb923c",d:"Athletic market value. On-field commercial relevance. 10%."},
