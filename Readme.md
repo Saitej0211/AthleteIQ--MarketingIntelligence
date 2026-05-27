@@ -45,7 +45,7 @@ Clean summary of who the athlete is — sport, team, position, nationality, age,
 Key on-field or on-court statistics pulled from authoritative sports databases. Not exhaustive — just the headline numbers that matter for brand context. A brand does not need to know every stat, but they do need to know if the player is performing at an elite level right now.
 
 ### 4. Social Media Intelligence Dashboard
-A unified view of the athlete's presence across Instagram, Facebook, TikTok, and YouTube. Each platform shows its own metrics but the dashboard synthesizes them into a single influence score. Includes engagement rate, follower trajectory, content style analysis, and a regional audience breakdown showing where their fanbase is geographically concentrated.
+A unified view of the athlete's presence across Instagram and YouTube. Each platform shows its own metrics but the dashboard synthesizes them into a single influence score. Includes engagement rate, follower trajectory, content style analysis, and a regional audience breakdown showing where their fanbase is geographically concentrated.
 
 ### 5. Brand Power Score
 A composite score from 0 to 100 calculated from five weighted inputs: social reach, engagement quality, public search interest (Google Trends), current sponsorship portfolio strength, and athletic market value. This is the single number a brand manager sees first before diving deeper.
@@ -84,12 +84,8 @@ Cache as individual JSON files locally
         ↓
 Stage 3 — Social Media Enrichment
         ↓
-Instagram via Instaloader
+Instagram via RapidAPI (Instagram Scraper API 2)
   → followers, engagement rate, post frequency
-Facebook via Graph API
-  → page reach, regional audience, content performance
-TikTok via Research API
-  → views, viral frequency, follower count
 YouTube via Data API v3
   → subscribers, average views, upload frequency
         ↓
@@ -157,13 +153,7 @@ Each tool uses a structured prompt template that instructs the LLM exactly what 
 ## Social Media Data — Platform by Platform
 
 ### Instagram
-The single most important platform for athlete brand value. Brands pay a premium for Instagram reach because the audience is highly visual, aspirational, and purchase-driven. The key metric is not follower count — it is engagement rate. An athlete with 3 million followers and 8% engagement is worth more to most brands than one with 20 million followers and 0.5% engagement. The pipeline collects follower count, average likes, average comments, post frequency, reel performance, and story engagement where available.
-
-### Facebook
-Less glamorous than Instagram or TikTok but critical for two reasons. First, it provides regional audience data that other platforms do not — essential for brands targeting specific markets like Southeast Asia, West Africa, or Latin America. Second, it remains the dominant platform for audiences aged 30 and above, which matters for brands in finance, insurance, automotive, and healthcare. The pipeline uses the Facebook Graph API to pull page metrics for athletes with public verified pages.
-
-### TikTok
-The fastest growing platform for athlete virality and the most important for brands targeting Gen Z. A single viral TikTok can outperform months of Instagram content in terms of raw reach. The pipeline tracks follower count, total likes, average video views, and viral post frequency — meaning how often a video significantly outperforms their average. Athletes with high viral frequency are particularly valuable because they represent unpredictable upside for brand exposure.
+The single most important platform for athlete brand value. Brands pay a premium for Instagram reach because the audience is highly visual, aspirational, and purchase-driven. The key metric is not follower count — it is engagement rate. An athlete with 3 million followers and 8% engagement is worth more to most brands than one with 20 million followers and 0.5% engagement. The pipeline fetches follower count, following, post count, bio, verified status, and engagement rate (estimated from the 12 most recent posts) via the RapidAPI Instagram Scraper API 2 — no Instagram login required.
 
 ### YouTube
 The platform that signals an athlete's ability to build long-form audience relationships. High YouTube engagement means the audience is deeply loyal, not just casually following. Particularly important for brands in technology, gaming, and lifestyle that want more than a tagged post — they want documentary-style content, product reviews, and behind-the-scenes access. The pipeline uses the YouTube Data API v3 to pull channel stats and video performance data.
@@ -194,19 +184,18 @@ Engagement quality is weighted highest because it is the metric brands actually 
 | Layer | Tool |
 |-------|------|
 | Data scraping | BeautifulSoup4, Requests, Pandas |
-| Instagram data | Instaloader |
-| Facebook data | Facebook Graph API |
-| TikTok data | TikTok Research API |
+| Instagram data | RapidAPI — Instagram Scraper API 2 |
 | YouTube data | YouTube Data API v3 |
 | Search trends | Pytrends |
 | LLM backbone | Claude API or OpenAI GPT-4 |
 | Agent framework | LangChain |
-| Vector store | FAISS or Chroma |
+| Vector store | ChromaDB (local, persistent) |
 | Backend | Python / FastAPI |
 | Frontend | Streamlit (fast) or React (polished) |
 | Visualization | Plotly — radar charts, bar charts, trend lines |
 | Export | ReportLab for PDF generation |
 | Caching | Local JSON files + SQLite |
+| Orchestration | Apache Airflow 2.9.2 |
 
 ---
 
@@ -235,10 +224,8 @@ AthleteIQ-MarketingIntelligence/
 │   ├── trends_scraper.py            # Stage 4 — Google Trends via Pytrends
 │   ├── sponsorship_scraper.py       # Stage 5 — seed deals + Wikipedia endorsements
 │   └── social_media/
-│       ├── instagram_scraper.py     # Stage 3a — Instaloader
-│       ├── facebook_scraper.py      # Stage 3b — Facebook Graph API
-│       ├── tiktok_scraper.py        # Stage 3c — TikTok Research API v2
-│       └── youtube_scraper.py       # Stage 3d — YouTube Data API v3
+│       ├── instagram_scraper.py     # Stage 3a — RapidAPI Instagram Scraper API 2
+│       └── youtube_scraper.py       # Stage 3b — YouTube Data API v3
 │
 ├── scoring/
 │   └── brand_power_score.py         # Stage 6 — weighted 5-factor score computation
@@ -249,19 +236,22 @@ AthleteIQ-MarketingIntelligence/
 ├── utils/
 │   └── helpers.py                   # Retry decorator, JSON cache, normalization
 │
+├── vector_store/
+│   └── chroma_store.py              # Stage 7 — ChromaDB ingestion + semantic search (free, local)
+│
 └── data/
     ├── raw/
     │   ├── master_lists/            # {sport}_top10.csv
     │   ├── athlete_profiles/        # {slug}.json  (Wikipedia + Transfermarkt)
+    │   ├── photos/                  # {slug}.jpg   (Wikipedia profile photo, 400px)
     │   ├── social_media/
     │   │   ├── instagram/           # {slug}.json
-    │   │   ├── facebook/            # {slug}.json
-    │   │   ├── tiktok/              # {slug}.json
     │   │   └── youtube/             # {slug}.json
     │   ├── trends/                  # {slug}.json  (Google Trends weekly series)
     │   └── sponsorships/            # {slug}.json  (sponsor list + estimated deal value)
-    └── processed/
-        └── {slug}.json              # Final enriched profile (all stages merged + score)
+    ├── processed/
+    │   └── {slug}.json              # Final enriched profile (all stages merged + score)
+    └── chroma_db/                   # ChromaDB persistent store — auto-created on first run
 ```
 
 ## Backend — Current Coverage
@@ -297,14 +287,12 @@ python main.py --sport basketball --athlete "LeBron James"
 
 **Required API keys** (only for the platforms you want to enrich):
 
-| Key | Where to get it |
-|-----|----------------|
-| `YOUTUBE_API_KEY` | [Google Cloud Console](https://console.cloud.google.com) → YouTube Data API v3 |
-| `FACEBOOK_ACCESS_TOKEN` | [Meta for Developers](https://developers.facebook.com) → Graph API Explorer |
-| `TIKTOK_CLIENT_KEY` + `TIKTOK_CLIENT_SECRET` | [TikTok for Developers](https://developers.tiktok.com) → Research API |
-| `ANTHROPIC_API_KEY` | [Anthropic Console](https://console.anthropic.com) |
+| Key | Where to get it | Free tier |
+|-----|----------------|-----------|
+| `YOUTUBE_API_KEY` | [Google Cloud Console](https://console.cloud.google.com) → YouTube Data API v3 | 10,000 units/day |
+| `RAPIDAPI_KEY` | [RapidAPI](https://rapidapi.com) → search "Instagram Scraper API 2" → subscribe free | 500 req/month |
+| `ANTHROPIC_API_KEY` | [Anthropic Console](https://console.anthropic.com) | Pay-as-you-go |
 
-Instagram (Instaloader) works without credentials for public profiles.
 Google Trends (Pytrends) requires no API key.
 Sponsorship seed data is baked in — no API required for the baseline.
 

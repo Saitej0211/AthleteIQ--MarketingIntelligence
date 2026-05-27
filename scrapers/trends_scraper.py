@@ -14,9 +14,23 @@ crashing the pipeline.
 
 import logging
 import time
-from statistics import mean, stdev
+from statistics import mean
 
 import pandas as pd
+
+# pytrends uses urllib3.Retry with `method_whitelist` which was renamed to
+# `allowed_methods` in urllib3 >= 2.0. Patch it before importing pytrends.
+try:
+    import urllib3.util.retry as _r
+    _orig = _r.Retry.__init__
+    def _patched(self, *a, **kw):
+        if "method_whitelist" in kw:
+            kw["allowed_methods"] = kw.pop("method_whitelist")
+        _orig(self, *a, **kw)
+    _r.Retry.__init__ = _patched
+except Exception:
+    pass
+
 from pytrends.request import TrendReq
 
 from config.settings import TRENDS_DIR, REQUEST_DELAY

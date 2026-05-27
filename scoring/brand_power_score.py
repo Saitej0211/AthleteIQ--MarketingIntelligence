@@ -47,13 +47,10 @@ CATEGORY_WEIGHTS = {
 class BrandPowerInputs:
     # Social reach — raw follower counts per platform
     instagram_followers: int = 0
-    tiktok_followers:    int = 0
     youtube_subscribers: int = 0
-    facebook_followers:  int = 0
 
     # Engagement — rates in percent (e.g. 3.2 means 3.2%)
     instagram_engagement_pct: float = 0.0
-    tiktok_avg_views:         int   = 0
     youtube_avg_views:        int   = 0
 
     # Trends
@@ -82,9 +79,7 @@ class BrandPowerResult:
 def _social_reach_score(inputs: BrandPowerInputs) -> float:
     total = (
         inputs.instagram_followers
-        + inputs.tiktok_followers
         + inputs.youtube_subscribers
-        + inputs.facebook_followers
     )
     # Log scale: 10M → ~70, 100M → 100
     if total <= 0:
@@ -99,19 +94,13 @@ def _engagement_quality_score(inputs: BrandPowerInputs) -> float:
     # Instagram: benchmark 1% = average, 5%+ = excellent
     if inputs.instagram_engagement_pct > 0:
         ig_score = min(100.0, (inputs.instagram_engagement_pct / 5.0) * 100)
-        scores.append((ig_score, 0.5))
-
-    # TikTok avg views relative to follower count
-    if inputs.tiktok_followers > 0 and inputs.tiktok_avg_views > 0:
-        view_rate = inputs.tiktok_avg_views / inputs.tiktok_followers
-        tt_score = min(100.0, (view_rate / 0.10) * 100)
-        scores.append((tt_score, 0.3))
+        scores.append((ig_score, 0.6))
 
     # YouTube avg views relative to subscribers
     if inputs.youtube_subscribers > 0 and inputs.youtube_avg_views > 0:
         view_rate = inputs.youtube_avg_views / inputs.youtube_subscribers
         yt_score = min(100.0, (view_rate / 0.05) * 100)
-        scores.append((yt_score, 0.2))
+        scores.append((yt_score, 0.4))
 
     if not scores:
         return 0.0
@@ -203,8 +192,6 @@ def build_inputs_from_cache(athlete_slug: str) -> BrandPowerInputs:
 
     ig    = load_json(SOCIAL_DIR / "instagram" / f"{athlete_slug}.json") or {}
     yt    = load_json(SOCIAL_DIR / "youtube"   / f"{athlete_slug}.json") or {}
-    tt    = load_json(SOCIAL_DIR / "tiktok"    / f"{athlete_slug}.json") or {}
-    fb    = load_json(SOCIAL_DIR / "facebook"  / f"{athlete_slug}.json") or {}
     trend = load_json(TRENDS_DIR              / f"{athlete_slug}.json") or {}
     spon  = load_json(SPONSORSHIPS_DIR        / f"{athlete_slug}.json") or {}
     prof  = load_json(PROFILES_DIR            / f"{athlete_slug}.json") or {}
@@ -225,11 +212,8 @@ def build_inputs_from_cache(athlete_slug: str) -> BrandPowerInputs:
 
     return BrandPowerInputs(
         instagram_followers=      ig.get("followers", 0),
-        tiktok_followers=         tt.get("followers", 0),
         youtube_subscribers=      yt.get("subscribers", 0),
-        facebook_followers=       fb.get("followers", 0),
         instagram_engagement_pct= ig.get("engagement_rate_pct", 0.0),
-        tiktok_avg_views=         tt.get("avg_video_views", 0),
         youtube_avg_views=        yt.get("avg_views_per_video", 0),
         google_trends_avg=        trend.get("interest_score_avg", 0.0),
         sponsors=                 spon.get("sponsors", []),
@@ -240,11 +224,8 @@ def build_inputs_from_cache(athlete_slug: str) -> BrandPowerInputs:
 if __name__ == "__main__":
     sample = BrandPowerInputs(
         instagram_followers=110_000_000,
-        tiktok_followers=45_000_000,
         youtube_subscribers=12_000_000,
-        facebook_followers=28_000_000,
         instagram_engagement_pct=3.2,
-        tiktok_avg_views=8_200_000,
         youtube_avg_views=4_100_000,
         google_trends_avg=94.0,
         sponsors=[

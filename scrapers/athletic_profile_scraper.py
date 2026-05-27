@@ -18,8 +18,11 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 
-from config.settings import HEADERS, PROFILES_DIR, REQUEST_DELAY, MAX_RETRIES
+from config.settings import HEADERS, PROFILES_DIR, RAW_DIR, REQUEST_DELAY, MAX_RETRIES
 from utils.helpers import save_json, load_json, slugify, get_retry_decorator
+
+PHOTOS_DIR = RAW_DIR / "photos"
+PHOTOS_DIR.mkdir(parents=True, exist_ok=True)
 
 logger = logging.getLogger(__name__)
 _retry = get_retry_decorator(MAX_RETRIES)
@@ -38,11 +41,61 @@ def fetch_wikipedia_summary(slug: str) -> dict:
     resp.raise_for_status()
     data = resp.json()
     return {
-        "bio":         data.get("extract", ""),
-        "thumbnail":   data.get("thumbnail", {}).get("source", ""),
-        "wiki_url":    data.get("content_urls", {}).get("desktop", {}).get("page", ""),
-        "description": data.get("description", ""),
+        "bio":           data.get("extract", ""),
+        "wiki_url":      data.get("content_urls", {}).get("desktop", {}).get("page", ""),
+        "description":   data.get("description", ""),
     }
+
+
+@_retry
+def fetch_wikipedia_thumbnail(slug: str, width: int = 300) -> str:
+    """
+    Uses the Wikipedia pageimages API to get a thumbnail at a specified width.
+    More reliable than the REST summary endpoint — returns a pre-generated size.
+    """
+    params = {
+        "action":      "query",
+        "titles":      slug,
+        "prop":        "pageimages",
+        "format":      "json",
+        "pithumbsize": width,
+    }
+    resp = requests.get(WIKIPEDIA_PARSE_API, params=params, headers=HEADERS, timeout=15)
+    resp.raise_for_status()
+    pages = resp.json().get("query", {}).get("pages", {})
+    page = next(iter(pages.values()), {})
+    return page.get("thumbnail", {}).get("source", "")
+
+
+def download_photo(slug: str, thumbnail_url: str) -> str | None:
+    if not thumbnail_url:
+        return None
+    photo_path = PHOTOS_DIR / f"{slug}.jpg"
+    if photo_path.exists():
+        return str(photo_path)
+
+    # Build candidate URLs: try progressively smaller sizes until one works.
+    # Wikipedia only pre-generates specific widths; 400px isn't always available.
+    candidates = [thumbnail_url]
+    for size in (320, 256, 200, 150):
+        candidates.append(re.sub(r"/\d+px-", f"/{size}px-", thumbnail_url))
+    # Deduplicate while preserving order
+    seen: set = set()
+    unique = [u for u in candidates if not (u in seen or seen.add(u))]  # type: ignore[func-returns-value]
+
+    for url in unique:
+        try:
+            resp = requests.get(url, headers=HEADERS, timeout=20)
+            if resp.status_code == 200:
+                with open(photo_path, "wb") as f:
+                    f.write(resp.content)
+                logger.info(f"[photo] saved {photo_path.name} ({url.split('/')[-1]})")
+                return str(photo_path)
+        except Exception:
+            continue
+
+    logger.warning(f"Photo download failed for {slug}: all size variants returned errors")
+    return None
 
 
 @_retry
@@ -156,6 +209,14 @@ def scrape_athlete_profile(athlete_row: dict) -> dict:
     try:
         wiki_summary = fetch_wikipedia_summary(athlete_row["wikipedia_slug"])
         profile.update(wiki_summary)
+        time.sleep(REQUEST_DELAY)
+
+        thumb_url = fetch_wikipedia_thumbnail(athlete_row["wikipedia_slug"], width=300)
+        if thumb_url:
+            profile["thumbnail_url"] = thumb_url
+            photo_path = download_photo(slug, thumb_url)
+            if photo_path:
+                profile["photo_path"] = photo_path
         time.sleep(REQUEST_DELAY)
     except Exception as e:
         logger.warning(f"Wikipedia summary failed for {athlete_row['name']}: {e}")
