@@ -37,6 +37,18 @@ const SPORT_CFG = {
   "Formula 1":        { emoji:"🏎️", accent:"#f87171",  dim:"#dc2626" },
 };
 
+// Sport-specific Unsplash background images
+const SPORT_BG = {
+  "Featured":          { url:"https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=1920&q=75", tint:"rgba(100,80,20,0.45)" },
+  "All":               { url:"https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=1920&q=75", tint:"rgba(60,20,100,0.45)" },
+  "Soccer":            { url:"https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=1920&q=75", tint:"rgba(10,80,20,0.5)"  },
+  "Basketball":        { url:"https://images.unsplash.com/photo-1546519638405-a4c7a8960d25?auto=format&fit=crop&w=1920&q=75", tint:"rgba(160,60,0,0.5)"  },
+  "Tennis":            { url:"https://images.unsplash.com/photo-1554068865-24cecd4e34b8?auto=format&fit=crop&w=1920&q=75", tint:"rgba(80,0,140,0.5)"  },
+  "American Football": { url:"https://images.unsplash.com/photo-1566577739112-5180d4bf9390?auto=format&fit=crop&w=1920&q=75", tint:"rgba(0,40,120,0.5)"  },
+  "Cricket":           { url:"https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?auto=format&fit=crop&w=1920&q=75", tint:"rgba(0,60,100,0.5)"  },
+  "Formula 1":         { url:"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1920&q=75", tint:"rgba(140,10,10,0.5)"  },
+};
+
 // Short name overrides for pipeline athletes with awkward auto-generated names
 const SHORT_OVERRIDES = {
   "vinícius_júnior":       "VINICIUS",
@@ -184,17 +196,31 @@ function RuneBg() {
   );
 }
 
-function NebulaBg() {
+function SportBg({ sport }) {
+  const bg = SPORT_BG[sport] || SPORT_BG["All"];
   return (
     <>
-      <div style={{ position:"fixed", inset:0, zIndex:0, pointerEvents:"none",
-        background:"radial-gradient(ellipse at 20% 50%, rgba(80,20,120,0.55) 0%, transparent 55%), radial-gradient(ellipse at 80% 40%, rgba(120,20,80,0.4) 0%, transparent 50%), radial-gradient(ellipse at 50% 100%, rgba(30,10,60,0.6) 0%, transparent 60%), #08080f"
+      {/* Sport photo layer */}
+      <div style={{
+        position:"fixed", inset:0, zIndex:0, pointerEvents:"none",
+        backgroundImage:`url("${bg.url}")`,
+        backgroundSize:"cover", backgroundPosition:"center",
+        filter:"brightness(0.28) saturate(1.3)",
+        transition:"background-image 0.6s ease",
       }}/>
-      <div style={{ position:"fixed", inset:0, zIndex:0, pointerEvents:"none",
-        backgroundImage:"radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.6) 0%, transparent 100%), radial-gradient(1px 1px at 25% 40%, rgba(255,255,255,0.4) 0%, transparent 100%), radial-gradient(1px 1px at 60% 10%, rgba(255,255,255,0.5) 0%, transparent 100%), radial-gradient(1px 1px at 75% 60%, rgba(255,255,255,0.3) 0%, transparent 100%), radial-gradient(1px 1px at 90% 25%, rgba(255,255,255,0.6) 0%, transparent 100%), radial-gradient(1px 1px at 40% 75%, rgba(255,255,255,0.4) 0%, transparent 100%), radial-gradient(1px 1px at 85% 85%, rgba(255,255,255,0.3) 0%, transparent 100%)"
+      {/* Sport-tinted dark gradient over the photo */}
+      <div style={{
+        position:"fixed", inset:0, zIndex:1, pointerEvents:"none",
+        background:`linear-gradient(to bottom, rgba(5,5,10,0.55) 0%, rgba(5,5,10,0.3) 45%, rgba(5,5,10,0.75) 100%), radial-gradient(ellipse at 50% 30%, ${bg.tint} 0%, transparent 65%)`,
       }}/>
-      <div style={{ position:"fixed", bottom:0, left:0, right:0, height:120, zIndex:0, pointerEvents:"none", background:"linear-gradient(to top, #050508 0%, transparent 100%)" }}/>
-      <div style={{ position:"fixed", inset:0, zIndex:0, display:"flex", alignItems:"center", justifyContent:"center", pointerEvents:"none" }}>
+      {/* Star dots */}
+      <div style={{ position:"fixed", inset:0, zIndex:2, pointerEvents:"none",
+        backgroundImage:"radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.5) 0%, transparent 100%), radial-gradient(1px 1px at 25% 40%, rgba(255,255,255,0.35) 0%, transparent 100%), radial-gradient(1px 1px at 60% 10%, rgba(255,255,255,0.45) 0%, transparent 100%), radial-gradient(1px 1px at 75% 60%, rgba(255,255,255,0.25) 0%, transparent 100%), radial-gradient(1px 1px at 90% 25%, rgba(255,255,255,0.5) 0%, transparent 100%), radial-gradient(1px 1px at 40% 75%, rgba(255,255,255,0.35) 0%, transparent 100%), radial-gradient(1px 1px at 85% 85%, rgba(255,255,255,0.25) 0%, transparent 100%)"
+      }}/>
+      {/* Bottom vignette */}
+      <div style={{ position:"fixed", bottom:0, left:0, right:0, height:160, zIndex:2, pointerEvents:"none", background:"linear-gradient(to top, #050508 0%, transparent 100%)" }}/>
+      {/* Rune circle */}
+      <div style={{ position:"fixed", inset:0, zIndex:2, display:"flex", alignItems:"center", justifyContent:"center", pointerEvents:"none" }}>
         <RuneBg/>
       </div>
     </>
@@ -202,47 +228,61 @@ function NebulaBg() {
 }
 
 // ── Single athlete card ──────────────────────────────────────────────────────
-function SportCard({ p, position, cardW, cardH, imgH, sm }) {
+function SportCard({ p, position, cardW, cardH, imgH, xs, sm, lg, onCardClick }) {
+  const [imgError, setImgError] = useState(false);
+  // Reset error flag whenever the displayed player changes
+  useEffect(() => { setImgError(false); }, [p.slug, p.name]);
+
   const cfg = SPORT_CFG[p.sport] || SPORT_CFG["Soccer"];
+  const safeSub = p.sub || { social: 0, eng: 0, trend: 0, spon: 0, val: 0 };
   const isCenter   = position === 0;
   const isAdjacent = Math.abs(position) === 1;
   const scale   = isCenter ? 1 : isAdjacent ? 0.78 : 0.62;
   const opacity = isCenter ? 1 : isAdjacent ? 0.7 : 0.4;
   const zIndex  = isCenter ? 10 : isAdjacent ? 5 : 2;
   const blur    = isCenter ? 0 : isAdjacent ? 1 : 3;
-  const gap     = sm ? 14 : 28;
+  const gap     = xs ? 10 : sm ? 14 : lg ? 32 : 28;
   const offset  = position * (cardW * 0.78 + gap);
 
-  const nameFz  = isCenter ? (sm ? 20 : 26) : (sm ? 14 : 17);
-  const scoreFz = isCenter ? (sm ? 20 : 24) : (sm ? 14 : 17);
-  const subNumFz = sm ? 12 : 15;
-  const subLblFz = sm ? 7 : 8;
-  const teamFz   = sm ? 9 : 11;
+  const nameFz  = isCenter ? (xs ? 17 : sm ? 20 : lg ? 30 : 26) : (xs ? 12 : sm ? 14 : lg ? 20 : 17);
+  const scoreFz = isCenter ? (xs ? 17 : sm ? 20 : lg ? 28 : 24) : (xs ? 12 : sm ? 14 : lg ? 20 : 17);
+  const subNumFz = xs ? 11 : sm ? 12 : lg ? 17 : 15;
+  const subLblFz = xs ? 6 : sm ? 7 : lg ? 9 : 8;
+  const teamFz   = xs ? 8 : sm ? 9 : lg ? 12 : 11;
 
   return (
-    <div style={{
-      position:"absolute", left:"50%", top:"50%",
-      width:cardW,
-      transform:`translateX(calc(-50% + ${offset}px)) translateY(-50%) scale(${scale})`,
-      transformOrigin:"center center",
-      opacity, zIndex,
-      filter:`blur(${blur}px)`,
-      transition:"all 0.4s cubic-bezier(0.4,0.2,0.2,1)",
-      borderRadius:14, overflow:"hidden",
-      border: isCenter ? `2px solid ${p.featured ? "#d4af37" : "#8b6914"}` : `1px solid rgba(255,255,255,0.12)`,
-      boxShadow: isCenter ? `0 0 40px rgba(212,175,55,0.35), 0 0 80px rgba(212,175,55,0.15), inset 0 0 30px rgba(0,0,0,0.4)` : "none",
-      background: isCenter ? "#0a0a10" : "rgba(10,10,20,0.85)",
-      height:cardH,
-    }}>
+    <div
+      onClick={onCardClick || undefined}
+      style={{
+        position:"absolute", left:"50%", top:"50%",
+        width:cardW,
+        transform:`translateX(calc(-50% + ${offset}px)) translateY(-50%) scale(${scale})`,
+        transformOrigin:"center center",
+        opacity, zIndex,
+        filter:`blur(${blur}px)`,
+        transition:"all 0.4s cubic-bezier(0.4,0.2,0.2,1)",
+        borderRadius:14, overflow:"hidden",
+        border: isCenter ? `2px solid ${p.featured ? "#d4af37" : "#8b6914"}` : `1px solid rgba(255,255,255,0.12)`,
+        boxShadow: isCenter ? `0 0 40px rgba(212,175,55,0.35), 0 0 80px rgba(212,175,55,0.15), inset 0 0 30px rgba(0,0,0,0.4)` : "none",
+        background: isCenter ? "#0a0a10" : "rgba(10,10,20,0.85)",
+        height:cardH,
+        cursor: onCardClick ? "pointer" : "default",
+      }}>
       {isCenter && <div style={{ position:"absolute", top:0, left:0, right:0, height:3, background:`linear-gradient(90deg,transparent,${cfg.accent},transparent)` }}/>}
 
       {/* Photo */}
       <div style={{ position:"relative", height:imgH, overflow:"hidden" }}>
         <div style={{ position:"absolute", inset:0, background:`linear-gradient(to bottom, transparent 35%, #0a0a10 100%)` }}/>
-        <img src={p.image} alt={p.name}
-          style={{ width:"100%", height:"100%", objectFit:"cover", objectPosition:"top center" }}
-          onError={e => { e.target.parentNode.innerHTML = `<div style="height:${imgH}px;display:flex;align-items:center;justify-content:center;background:#111"><span style="font-size:50px">👤</span></div>`; }}
-        />
+        {imgError ? (
+          <div style={{ width:"100%", height:imgH, display:"flex", alignItems:"center", justifyContent:"center", background:"#111" }}>
+            <span style={{ fontSize:50 }}>👤</span>
+          </div>
+        ) : (
+          <img src={p.image} alt={p.name}
+            style={{ width:"100%", height:"100%", objectFit:"cover", objectPosition:"top center" }}
+            onError={() => setImgError(true)}
+          />
+        )}
         {/* Sport badge */}
         <div style={{ position:"absolute", top:10, right:10, width:32, height:32, borderRadius:"50%", background:"rgba(0,0,0,0.65)", border:`1.5px solid ${cfg.accent}88`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:16 }}>
           {cfg.emoji}
@@ -266,18 +306,18 @@ function SportCard({ p, position, cardW, cardH, imgH, sm }) {
           {p.short}
         </p>
         <p style={{ margin:"0 0 10px", fontSize:teamFz, color:"rgba(255,255,255,0.45)", textAlign:"center", letterSpacing:1 }}>
-          {p.team} · {p.position}
+          {p.team && p.team !== "nan" ? p.team : p.sport} · {p.position}
         </p>
         {isCenter && (
           <>
             <div style={{ height:"0.5px", background:"linear-gradient(90deg,transparent,rgba(212,175,55,0.4),transparent)", marginBottom:10 }}/>
             <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:6 }}>
               {[
-                {l:"SOC", v:Math.round(p.sub.social)},
-                {l:"ENG", v:Math.round(p.sub.eng)},
-                {l:"SPO", v:Math.round(p.sub.spon)},
-                {l:"GRO", v:Math.round(p.sub.trend)},
-                {l:"REA", v:Math.round(p.sub.val)},
+                {l:"SOC", v:Math.round(safeSub.social)},
+                {l:"ENG", v:Math.round(safeSub.eng)},
+                {l:"SPO", v:Math.round(safeSub.spon)},
+                {l:"GRO", v:Math.round(safeSub.trend)},
+                {l:"REA", v:Math.round(safeSub.val)},
                 {l:"VAL", v: p.market_value > 0 ? Math.round(p.market_value / 1.712) : 0},
               ].map(s => (
                 <div key={s.l} style={{ display:"flex", alignItems:"center", gap:4 }}>
@@ -312,22 +352,285 @@ function EmptyState({ sport, onBack }) {
   );
 }
 
+// ── Full athlete profile page ────────────────────────────────────────────────
+function ProfilePage({ p, allPlayers, profileIdx, onNavigate, onClose, xs, sm, lg }) {
+  const [visible, setVisible]   = useState(false);
+  const [imgError, setImgError] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setVisible(true), 20); return () => clearTimeout(t); }, []);
+  useEffect(() => { setImgError(false); }, [p.slug, p.name]);
+
+  const cfg      = SPORT_CFG[p.sport] || SPORT_CFG["Soccer"];
+  const safeSub  = p.sub || { social:0, eng:0, trend:0, spon:0, val:0 };
+  const pSpons   = cleanSponsors(p.sponsors);
+  const bg       = SPORT_BG[p.sport] || SPORT_BG["All"];
+  const n        = allPlayers.length;
+
+  const handleClose = () => { setVisible(false); setTimeout(onClose, 280); };
+
+  const metrics = [
+    { short:"SOC", label:"Social Reach",  value:Math.round(safeSub.social||0), color:"#4ade80", desc:"Cross-platform followers · 25%" },
+    { short:"ENG", label:"Engagement",    value:Math.round(safeSub.eng||0),    color:"#f472b6", desc:"Instagram engagement rate · 30%" },
+    { short:"SPO", label:"Sponsorship",   value:Math.round(safeSub.spon||0),   color:"#a78bfa", desc:"Deal count & value · 15%" },
+    { short:"GRO", label:"Growth Trend",  value:Math.round(safeSub.trend||0),  color:"#fbbf24", desc:"Google Trends 12-month · 20%" },
+    { short:"REA", label:"Market Value",  value:Math.round(safeSub.val||0),    color:"#fb923c", desc:"Athletic market value · 10%" },
+    { short:"VAL", label:"Deal Value",    value:p.market_value>0 ? Math.round(p.market_value/1.712) : 0, color:"#38bdf8", desc:"Est. annual sponsorship $M" },
+  ];
+  const socials = [
+    { icon:"📸", label:"Instagram", value:p.ig,  sub: p.ig_eng ? `${p.ig_eng}% eng` : null },
+    { icon:"🎵", label:"TikTok",    value:p.tt,  sub:null },
+    { icon:"▶️", label:"YouTube",   value:p.yt,  sub:null },
+    { icon:"📘", label:"Facebook",  value:p.fb,  sub:null },
+  ].filter(s => s.value > 0);
+
+  return (
+    <div style={{
+      position:"fixed", inset:0, zIndex:200,
+      background:"#050508", overflowY:"auto",
+      opacity: visible ? 1 : 0,
+      transform: visible ? "translateY(0)" : "translateY(30px)",
+      transition:"opacity 0.3s ease, transform 0.3s ease",
+      fontFamily:"'Arial',sans-serif", userSelect:"none",
+    }}>
+      {/* BG layers */}
+      <div style={{ position:"fixed", inset:0, zIndex:0, pointerEvents:"none", backgroundImage:`url("${bg.url}")`, backgroundSize:"cover", backgroundPosition:"center", filter:"brightness(0.15) saturate(1.2) blur(3px)" }}/>
+      <div style={{ position:"fixed", inset:0, zIndex:1, pointerEvents:"none", background:`linear-gradient(to bottom,rgba(5,5,10,0.65) 0%,rgba(5,5,10,0.15) 30%,rgba(5,5,10,0.9) 100%), radial-gradient(ellipse at 50% 20%,${bg.tint} 0%,transparent 60%)` }}/>
+
+      {/* Sticky top bar */}
+      <div style={{ position:"sticky", top:0, zIndex:50, display:"flex", justifyContent:"space-between", alignItems:"center", padding: xs ? "10px 12px" : sm ? "11px 14px" : lg ? "16px 48px" : "14px 28px", background:"rgba(5,5,10,0.8)", backdropFilter:"blur(14px)", borderBottom:"1px solid rgba(255,255,255,0.07)" }}>
+        <button onClick={handleClose} style={{ background:"none", border:"none", cursor:"pointer", display:"flex", alignItems:"center", gap:7, color:"rgba(255,255,255,0.75)", fontSize: xs ? 11 : sm ? 12 : 13, fontWeight:"700", letterSpacing:2 }}>
+          <div style={{ width:26, height:26, borderRadius:"50%", border:"2px solid #e05555", display:"flex", alignItems:"center", justifyContent:"center" }}><span style={{ fontSize:11, color:"#e05555" }}>←</span></div>
+          BACK
+        </button>
+        <span style={{ fontSize: xs ? 8 : sm ? 9 : 10, color:"rgba(255,255,255,0.3)", letterSpacing:3 }}>
+          {String(profileIdx+1).padStart(2,"0")} / {String(n).padStart(2,"0")}
+        </span>
+        <div style={{ display:"flex", gap:6 }}>
+          {[[-1,"←"],[1,"→"]].map(([dir,lbl]) => (
+            <button key={dir} onClick={() => onNavigate(dir)} style={{ background:"rgba(0,0,0,0.5)", border:`1.5px solid ${cfg.accent}66`, borderRadius:6, width: lg ? 36 : 30, height: lg ? 36 : 30, cursor:"pointer", color:cfg.accent, fontSize: lg ? 16 : 14, display:"flex", alignItems:"center", justifyContent:"center" }}>{lbl}</button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Hero photo — full-width on all screens ── */}
+      <div style={{ position:"relative", zIndex:10,
+        height: xs ? "56vw" : sm ? "52vw" : lg ? "78vh" : "70vh",
+        minHeight: xs ? 200 : sm ? 220 : lg ? 500 : 440,
+        overflow:"hidden",
+      }}>
+        {/* Mobile: top+bottom fade  |  Desktop: left+right sides only */}
+        <div style={{ position:"absolute", inset:0, zIndex:1, pointerEvents:"none",
+          background: (xs||sm)
+            ? "linear-gradient(to bottom, rgba(5,5,10,0.15) 0%, transparent 35%, rgba(5,5,10,0.97) 100%)"
+            : "linear-gradient(to right, rgba(5,5,10,0.96) 0%, rgba(5,5,10,0.55) 18%, transparent 38%, transparent 62%, rgba(5,5,10,0.55) 82%, rgba(5,5,10,0.96) 100%)",
+        }}/>
+
+        {imgError
+          ? <div style={{ height:"100%", display:"flex", alignItems:"center", justifyContent:"center", background:"#111" }}><span style={{ fontSize:80 }}>👤</span></div>
+          : <img src={p.image} alt={p.name}
+              style={{
+                width:"100%", height:"100%",
+                objectFit: (xs||sm) ? "cover" : "contain",
+                objectPosition:"top center",
+                filter: (xs||sm) ? "none" : "brightness(0.88) saturate(0.85)",
+              }}
+              onError={() => setImgError(true)}/>
+        }
+
+        {/* Score badge */}
+        <div style={{ position:"absolute", top:14, right:14, zIndex:2, background:"rgba(0,0,0,0.8)", border:"2px solid #d4af37", borderRadius:12, padding: xs ? "6px 10px" : sm ? "8px 13px" : lg ? "12px 20px" : "10px 17px", textAlign:"center" }}>
+          <div style={{ fontSize: xs ? 22 : sm ? 26 : lg ? 40 : 34, fontWeight:"900", color:"#d4af37", lineHeight:1 }}>{p.brand_score}</div>
+          <div style={{ fontSize: lg ? 8 : 7, color:"rgba(255,255,255,0.45)", letterSpacing:1.5, marginTop:2 }}>SCORE</div>
+        </div>
+        {p.featured && <div style={{ position:"absolute", top:14, right: xs ? 68 : sm ? 78 : lg ? 116 : 96, zIndex:2, fontSize: xs ? 12 : sm ? 14 : lg ? 18 : 16 }}>⭐</div>}
+
+        {/* Name overlay */}
+        <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:2, padding: xs ? "12px 14px 10px" : sm ? "14px 16px 12px" : lg ? "28px 56px 24px" : "20px 32px 18px" }}>
+          <p style={{ margin:"0 0 3px", fontSize: xs ? 8 : sm ? 9 : lg ? 12 : 10, letterSpacing:3, color:cfg.accent, fontWeight:"700", textTransform:"uppercase" }}>
+            {FLAG[p.nationality]||"🌍"} {p.nationality} · {cfg.emoji} {p.sport}
+          </p>
+          <h1 style={{ margin:0, fontSize: xs ? "clamp(22px,5.5vw,30px)" : sm ? "clamp(26px,6.5vw,36px)" : lg ? "clamp(42px,4vw,60px)" : "clamp(34px,4.5vw,52px)", fontWeight:"900", color:"#fff", letterSpacing:2, lineHeight:1, textShadow:"0 2px 12px rgba(0,0,0,0.9)" }}>
+            {p.name}
+          </h1>
+          <p style={{ margin:"5px 0 0", fontSize: xs ? 10 : sm ? 11 : lg ? 15 : 13, color:"rgba(255,255,255,0.5)", letterSpacing:1 }}>
+            {p.team && p.team!=="nan" ? p.team : p.sport} · {p.position}
+          </p>
+        </div>
+      </div>
+
+      {/* Content — badges, bio, metrics, social, sponsors */}
+      <div style={{ position:"relative", zIndex:10, maxWidth: lg ? 960 : 780, margin:"0 auto", padding: xs ? "16px 14px 48px" : sm ? "20px 16px 56px" : lg ? "36px 48px 88px" : "28px 36px 72px" }}>
+
+        {/* Badges row */}
+        <div style={{ display:"flex", flexWrap:"wrap", gap: xs ? 6 : 8, marginBottom: xs ? 16 : 22 }}>
+          <span style={{ padding: xs ? "4px 10px" : sm ? "5px 13px" : lg ? "7px 20px" : "6px 16px", borderRadius:20, background:`${cfg.accent}1a`, border:`1px solid ${cfg.accent}55`, color:cfg.accent, fontSize: xs ? 9 : sm ? 10 : lg ? 12 : 11, fontWeight:"700", letterSpacing:2 }}>
+            {(p.tier||"ATHLETE").toUpperCase()}
+          </span>
+          {p.trend > 0 && (
+            <span style={{ padding: xs ? "4px 10px" : sm ? "5px 13px" : lg ? "7px 20px" : "6px 16px", borderRadius:20, background:`${TCOL[p.trend_dir]||"#fbbf24"}1a`, border:`1px solid ${TCOL[p.trend_dir]||"#fbbf24"}44`, color:TCOL[p.trend_dir]||"#fbbf24", fontSize: xs ? 9 : sm ? 10 : lg ? 12 : 11, fontWeight:"700", letterSpacing:1 }}>
+              📈 Trend {p.trend} · {TDIR[p.trend_dir]||"Stable"}
+            </span>
+          )}
+          {p.market_value > 0 && (
+            <span style={{ padding: xs ? "4px 10px" : sm ? "5px 13px" : lg ? "7px 20px" : "6px 16px", borderRadius:20, background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.1)", color:"rgba(255,255,255,0.55)", fontSize: xs ? 9 : sm ? 10 : lg ? 12 : 11, fontWeight:"700" }}>
+              💰 ${p.market_value}M market value
+            </span>
+          )}
+        </div>
+
+        {/* Bio */}
+        {p.bio && (
+          <div style={{ marginBottom: xs ? 18 : 26 }}>
+            <p style={{ margin:"0 0 8px", fontSize: xs ? 8 : sm ? 9 : lg ? 11 : 10, letterSpacing:3, color:cfg.accent, fontWeight:"700", textTransform:"uppercase" }}>BIOGRAPHY</p>
+            <p style={{ margin:0, fontSize: xs ? 12 : sm ? 13 : lg ? 17 : 15, color:"rgba(255,255,255,0.68)", lineHeight:1.75 }}>{p.bio}</p>
+          </div>
+        )}
+
+        {/* Gold divider */}
+        <div style={{ height:1, background:`linear-gradient(90deg,transparent,${cfg.accent}88,transparent)`, margin: xs ? "0 0 18px" : "0 0 26px" }}/>
+
+        {/* Brand score */}
+        <div style={{ textAlign:"center", marginBottom: xs ? 18 : 26 }}>
+          <p style={{ margin:"0 0 4px", fontSize: xs ? 8 : sm ? 9 : lg ? 11 : 10, letterSpacing:4, color:"rgba(255,255,255,0.3)", textTransform:"uppercase" }}>BRAND POWER INDEX</p>
+          <div style={{ fontSize: xs ? 52 : sm ? 64 : lg ? 100 : 84, fontWeight:"900", color:"#d4af37", lineHeight:1, textShadow:"0 0 60px rgba(212,175,55,0.4)" }}>{p.brand_score}</div>
+          <div style={{ width:56, height:3, background:`linear-gradient(90deg,transparent,#d4af37,transparent)`, margin:"10px auto 0" }}/>
+        </div>
+
+        {/* Metrics grid */}
+        <div style={{ display:"grid", gridTemplateColumns: xs ? "1fr 1fr" : sm ? "1fr 1fr" : "1fr 1fr 1fr", gap: xs ? 8 : sm ? 10 : lg ? 16 : 13, marginBottom: xs ? 20 : 28 }}>
+          {metrics.map(m => (
+            <div key={m.short} style={{ background:"rgba(255,255,255,0.04)", borderRadius:10, padding: xs ? "10px 11px" : sm ? "12px 13px" : lg ? "18px 22px" : "14px 17px", border:`1px solid ${m.color}1a` }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"baseline", marginBottom:7 }}>
+                <span style={{ fontSize: xs ? 8 : sm ? 9 : lg ? 12 : 10, fontWeight:"900", color:m.color, letterSpacing:2 }}>{m.short}</span>
+                <span style={{ fontSize: xs ? 16 : sm ? 19 : lg ? 28 : 23, fontWeight:"900", color: m.value===0 ? "rgba(255,255,255,0.18)" : "#fff", lineHeight:1 }}>{m.value===0 ? "—" : m.value}</span>
+              </div>
+              <div style={{ height:3, background:"rgba(255,255,255,0.07)", borderRadius:2, marginBottom:6, overflow:"hidden" }}>
+                <div style={{ width:`${Math.min(m.value,100)}%`, height:"100%", background:`linear-gradient(90deg,${m.color}88,${m.color})`, borderRadius:2 }}/>
+              </div>
+              <p style={{ margin:0, fontSize: xs ? 7 : sm ? 8 : lg ? 10 : 9, color:"rgba(255,255,255,0.28)", lineHeight:1.4 }}>{m.desc}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Social media */}
+        {socials.length > 0 && (<>
+          <p style={{ margin:"0 0 11px", fontSize: xs ? 8 : sm ? 9 : lg ? 11 : 10, letterSpacing:3, color:cfg.accent, fontWeight:"700", textTransform:"uppercase" }}>SOCIAL MEDIA</p>
+          <div style={{ display:"grid", gridTemplateColumns:`repeat(${Math.min(socials.length, xs ? 2 : sm ? 2 : 4)},1fr)`, gap: xs ? 6 : sm ? 8 : lg ? 14 : 12, marginBottom: xs ? 18 : 26 }}>
+            {socials.map(s => (
+              <div key={s.label} style={{ background:"rgba(255,255,255,0.04)", borderRadius:10, padding: xs ? "10px 8px" : sm ? "12px 10px" : lg ? "18px 18px" : "14px 14px", border:"1px solid rgba(255,255,255,0.07)", textAlign:"center" }}>
+                <div style={{ fontSize: xs ? 16 : sm ? 20 : lg ? 28 : 24, marginBottom:5 }}>{s.icon}</div>
+                <div style={{ fontSize: xs ? 14 : sm ? 17 : lg ? 25 : 21, fontWeight:"900", color:"#fff", lineHeight:1 }}>{fmt(s.value)}</div>
+                <div style={{ fontSize: xs ? 7 : sm ? 8 : lg ? 10 : 9, color:"rgba(255,255,255,0.3)", letterSpacing:1, marginTop:3 }}>{s.label.toUpperCase()}</div>
+                {s.sub && <div style={{ fontSize: xs ? 7 : sm ? 8 : lg ? 10 : 9, color:cfg.accent, marginTop:2 }}>{s.sub}</div>}
+              </div>
+            ))}
+          </div>
+        </>)}
+
+        {/* Sponsors */}
+        {pSpons.length > 0 && (<>
+          <div style={{ height:1, background:"rgba(255,255,255,0.06)", margin:"0 0 20px" }}/>
+          <p style={{ margin:"0 0 11px", fontSize: xs ? 8 : sm ? 9 : lg ? 11 : 10, letterSpacing:3, color:cfg.accent, fontWeight:"700", textTransform:"uppercase" }}>SPONSORS & PARTNERS</p>
+          <div style={{ display:"flex", flexWrap:"wrap", gap: xs ? 6 : 8 }}>
+            {pSpons.map(s => (
+              <span key={s} style={{ fontSize: xs ? 11 : sm ? 12 : lg ? 16 : 14, fontWeight:"700", padding: xs ? "6px 12px" : sm ? "7px 15px" : lg ? "10px 26px" : "8px 20px", borderRadius:6, background:`${cfg.dim}44`, border:`1px solid ${cfg.accent}55`, color:"rgba(255,255,255,0.88)", letterSpacing:0.5 }}>{s}</span>
+            ))}
+          </div>
+        </>)}
+      </div>
+    </div>
+  );
+}
+
+// ── Grid card (compact, used in grid view) ───────────────────────────────────
+function GridCard({ p, onClick, xs, sm, lg, isActive }) {
+  const [hover, setHover] = useState(false);
+  const [imgError, setImgError] = useState(false);
+  useEffect(() => { setImgError(false); }, [p.slug, p.name]);
+  const cfg = SPORT_CFG[p.sport] || SPORT_CFG["Soccer"];
+  const lit = hover || isActive;
+
+  const photoH  = xs ? 130 : sm ? 160 : lg ? 210 : 190;
+  const scoreFz = xs ? 9 : sm ? 10 : lg ? 13 : 12;
+  const nameFz  = xs ? 9 : sm ? 10 : lg ? 13 : 12;
+  const teamFz  = xs ? 7 : sm ? 7 : lg ? 9 : 8;
+
+  return (
+    <div
+      onClick={onClick}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        borderRadius: 10, overflow: "hidden", cursor: "pointer",
+        border: lit ? `1.5px solid ${cfg.accent}` : "1px solid rgba(255,255,255,0.1)",
+        background: "#0a0a10",
+        transition: "all 0.2s",
+        transform: lit ? "translateY(-3px)" : "translateY(0)",
+        boxShadow: lit ? `0 8px 24px rgba(0,0,0,0.5), 0 0 16px ${cfg.accent}33` : "none",
+      }}
+    >
+      {/* Photo */}
+      <div style={{ position: "relative", height: photoH, overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, zIndex: 1, background: "linear-gradient(to bottom, transparent 55%, #0a0a10 100%)" }}/>
+        {imgError ? (
+          <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "#111" }}>
+            <span style={{ fontSize: xs ? 36 : 48 }}>👤</span>
+          </div>
+        ) : (
+          <img src={p.image} alt={p.name}
+            style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 15%" }}
+            onError={() => setImgError(true)}
+          />
+        )}
+        {/* Score badge */}
+        <div style={{ position: "absolute", top: 6, left: 6, zIndex: 2, background: "rgba(0,0,0,0.82)", border: `1px solid ${lit ? cfg.accent : "rgba(255,255,255,0.2)"}`, borderRadius: 5, padding: xs ? "2px 4px" : "2px 6px" }}>
+          <span style={{ fontSize: scoreFz, fontWeight: "900", color: lit ? cfg.accent : "#fff" }}>{p.brand_score}</span>
+        </div>
+        {/* Sport emoji */}
+        <div style={{ position: "absolute", top: 6, right: 6, zIndex: 2, fontSize: xs ? 10 : sm ? 11 : lg ? 15 : 13 }}>{cfg.emoji}</div>
+        {p.featured && <div style={{ position: "absolute", top: 6, right: xs ? 20 : sm ? 22 : lg ? 28 : 26, zIndex: 2, fontSize: xs ? 8 : 9 }}>⭐</div>}
+      </div>
+      {/* Text */}
+      <div style={{ padding: xs ? "4px 6px 6px" : sm ? "5px 8px 7px" : lg ? "7px 12px 10px" : "6px 10px 9px" }}>
+        <p style={{ margin: "0 0 2px", fontSize: nameFz, fontWeight: "900", color: lit ? cfg.accent : "#ddd", letterSpacing: 1, fontFamily: "'Arial Black',sans-serif", lineHeight: 1.1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          {p.short}
+        </p>
+        <p style={{ margin: 0, fontSize: teamFz, color: "rgba(255,255,255,0.35)", letterSpacing: 0.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          {p.team && p.team !== "nan" ? p.team : p.sport}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 // ── Main component ───────────────────────────────────────────────────────────
 export default function AthleteCards({ sport, onBack }) {
   const W  = useWidth();
+  const xs = W < 400;
   const sm = W < 640;
   const md = W < 900;
+  const lg = W >= 1200;
 
   // Select player pool
+  // For sports with no pipeline coverage (e.g. NFL), fall back to featured players for that sport
   const players = sport === "Featured"
     ? FEATURED_PLAYERS
     : sport === "All"
       ? ALL_PLAYERS
-      : ALL_PLAYERS.filter(p => p.sport === sport);
+      : (() => {
+          const pipeline = ALL_PLAYERS.filter(p => p.sport === sport);
+          if (pipeline.length > 0) return pipeline;
+          return FEATURED_PLAYERS.filter(p => p.sport === sport);
+        })();
 
-  const [idx, setIdx]           = useState(0);
-  const [showInfo, setShowInfo] = useState(false);
-  const touchStartX             = useRef(null);
+  const [idx, setIdx]             = useState(0);
+  const [showInfo, setShowInfo]   = useState(false);
+  const [viewMode, setViewMode]   = useState("carousel"); // "carousel" | "grid"
+  const [profileIdx, setProfileIdx] = useState(null);    // null = no profile open
+  const touchStartX               = useRef(null);
+
+  const openProfile  = i => setProfileIdx(i);
+  const closeProfile = () => setProfileIdx(null);
+  const navProfile   = dir => setProfileIdx(i => (i + dir + n) % n);
 
   const n       = players.length;
   const prev    = () => setIdx(i => (i - 1 + n) % n);
@@ -338,10 +641,10 @@ export default function AthleteCards({ sport, onBack }) {
   const pSponsors = cleanSponsors(p.sponsors);
 
   // Responsive card size
-  const cardW = sm ? 165 : md ? 205 : 245;
-  const cardH = sm ? 270 : 350;
-  const imgH  = sm ? 155 : 205;
-  const visibleOffsets = sm ? [-1, 0, 1] : [-2, -1, 0, 1, 2];
+  const cardW = xs ? 148 : sm ? 168 : md ? 210 : lg ? 268 : 248;
+  const cardH = xs ? 255 : sm ? 278 : md ? 335 : lg ? 390 : 360;
+  const imgH  = xs ? 142 : sm ? 160 : md ? 195 : lg ? 230 : 215;
+  const visibleOffsets = xs ? [-1, 0, 1] : sm ? [-1, 0, 1] : lg ? [-2, -1, 0, 1, 2] : [-2, -1, 0, 1, 2];
   const getPlayer = off => players[(safeIdx + off + n) % n];
 
   const onTouchStart = e => { touchStartX.current = e.touches[0].clientX; };
@@ -358,12 +661,12 @@ export default function AthleteCards({ sport, onBack }) {
   const headerEmoji = sport === "Featured" ? "⭐" : sport === "All" ? "🏆" : (SPORT_CFG[sport]?.emoji || "");
 
   return (
-    <div style={{ width:"100%", minHeight:"100vh", background:"#08080f", position:"relative", overflow:"hidden", display:"flex", flexDirection:"column", fontFamily:"'Arial',sans-serif", userSelect:"none" }}>
-      <NebulaBg/>
+    <div style={{ width:"100%", minHeight:"100vh", background:"#08080f", position:"relative", overflow: viewMode === "grid" ? "auto" : "hidden", display:"flex", flexDirection:"column", fontFamily:"'Arial',sans-serif", userSelect:"none" }}>
+      <SportBg sport={sport}/>
 
       {/* Top nav */}
-      <div style={{ position:"relative", zIndex:20, display:"flex", justifyContent:"space-between", alignItems:"center", padding: sm ? "14px 16px 0" : "18px 32px 0" }}>
-        <button onClick={onBack} style={{ background:"none", border:"none", cursor:"pointer", display:"flex", alignItems:"center", gap:7, color:"rgba(255,255,255,0.75)", fontSize: sm ? 12 : 14, fontWeight:"700", letterSpacing:2 }}>
+      <div style={{ position:"relative", zIndex:20, display:"flex", justifyContent:"space-between", alignItems:"center", padding: xs ? "12px 12px 0" : sm ? "14px 16px 0" : lg ? "22px 48px 0" : "18px 32px 0" }}>
+        <button onClick={onBack} style={{ background:"none", border:"none", cursor:"pointer", display:"flex", alignItems:"center", gap:7, color:"rgba(255,255,255,0.75)", fontSize: xs ? 11 : sm ? 12 : lg ? 15 : 14, fontWeight:"700", letterSpacing:2 }}>
           <div style={{ width:26, height:26, borderRadius:"50%", border:"2px solid #e05555", display:"flex", alignItems:"center", justifyContent:"center" }}>
             <span style={{ fontSize:11, color:"#e05555" }}>←</span>
           </div>
@@ -371,13 +674,13 @@ export default function AthleteCards({ sport, onBack }) {
         </button>
 
         <div style={{ textAlign:"center" }}>
-          <p style={{ margin:0, fontSize: sm ? 9 : 11, letterSpacing:4, color:"rgba(255,255,255,0.4)", textTransform:"uppercase" }}>AthleteIQ</p>
-          <h1 style={{ margin:0, fontSize: sm ? 18 : 24, fontWeight:"900", letterSpacing:3, color:"#fff", textShadow:"0 0 20px rgba(212,175,55,0.4)", lineHeight:1 }}>
+          <p style={{ margin:0, fontSize: xs ? 8 : sm ? 9 : lg ? 12 : 11, letterSpacing:4, color:"rgba(255,255,255,0.4)", textTransform:"uppercase" }}>AthleteIQ</p>
+          <h1 style={{ margin:0, fontSize: xs ? 16 : sm ? 18 : lg ? 28 : 24, fontWeight:"900", letterSpacing:3, color:"#fff", textShadow:"0 0 20px rgba(212,175,55,0.4)", lineHeight:1 }}>
             {headerEmoji} {headerLabel}
           </h1>
         </div>
 
-        <button onClick={() => setShowInfo(v => !v)} style={{ background:"none", border:"none", cursor:"pointer", display:"flex", alignItems:"center", gap:7, color:"rgba(255,255,255,0.75)", fontSize: sm ? 12 : 14, fontWeight:"700", letterSpacing:2 }}>
+        <button onClick={() => setShowInfo(v => !v)} style={{ background:"none", border:"none", cursor:"pointer", display:"flex", alignItems:"center", gap:7, color:"rgba(255,255,255,0.75)", fontSize: xs ? 11 : sm ? 12 : lg ? 15 : 14, fontWeight:"700", letterSpacing:2 }}>
           <div style={{ width:26, height:26, borderRadius:4, border:"2px solid #5bc4c0", display:"flex", alignItems:"center", justifyContent:"center" }}>
             <span style={{ fontSize:11, color:"#5bc4c0" }}>i</span>
           </div>
@@ -385,78 +688,139 @@ export default function AthleteCards({ sport, onBack }) {
         </button>
       </div>
 
-      {/* Carousel */}
-      <div
-        style={{ position:"relative", zIndex:10, flex:1, display:"flex", alignItems:"center", justifyContent:"center", minHeight: sm ? 310 : 390, marginTop:8 }}
-        onTouchStart={onTouchStart}
-        onTouchEnd={onTouchEnd}
-      >
-        <button onClick={prev} style={{
-          position:"absolute", left: sm ? "calc(50% - 115px)" : "calc(50% - 225px)", zIndex:30,
-          background:"rgba(0,0,0,0.55)", border:"1.5px solid rgba(212,175,55,0.6)",
-          borderRadius:6, width: sm ? 28 : 34, height: sm ? 36 : 44, cursor:"pointer",
-          color:"#d4af37", fontSize: sm ? 16 : 20, display:"flex", alignItems:"center", justifyContent:"center",
-        }}>&#9664;</button>
-
-        {visibleOffsets.map(offset => (
-          <SportCard key={offset} p={getPlayer(offset)} position={offset} cardW={cardW} cardH={cardH} imgH={imgH} sm={sm} />
-        ))}
-
-        <button onClick={next} style={{
-          position:"absolute", right: sm ? "calc(50% - 115px)" : "calc(50% - 225px)", zIndex:30,
-          background:"rgba(0,0,0,0.55)", border:"1.5px solid rgba(212,175,55,0.6)",
-          borderRadius:6, width: sm ? 28 : 34, height: sm ? 36 : 44, cursor:"pointer",
-          color:"#d4af37", fontSize: sm ? 16 : 20, display:"flex", alignItems:"center", justifyContent:"center",
-        }}>&#9654;</button>
-      </div>
-
-      {/* Number counter */}
-      <div style={{ position:"relative", zIndex:20, textAlign:"center", marginBottom:4, marginTop:2 }}>
-        <span style={{ fontSize: sm ? 20 : 26, fontWeight:"900", color:"rgba(255,255,255,0.5)", letterSpacing:4, fontFamily:"'Arial Black',sans-serif" }}>
-          {String(safeIdx + 1).padStart(2, "0")}
-          <span style={{ color:"#d4af37", margin:"0 8px" }}>/</span>
-          {String(n).padStart(2, "0")}
-        </span>
-      </div>
-
-      {/* Labels */}
-      <div style={{ position:"relative", zIndex:20, textAlign:"center", paddingBottom:4 }}>
-        {["SOCIAL STATS", "BRAND PROFILE"].map(label => (
-          <p key={label} style={{ margin:"3px 0", fontSize: sm ? 11 : 13, letterSpacing:3, color:"rgba(255,255,255,0.5)", cursor:"pointer", transition:"color 0.2s" }}
-            onMouseEnter={e => e.target.style.color="#fff"} onMouseLeave={e => e.target.style.color="rgba(255,255,255,0.5)"}>
-            {label}
-          </p>
+      {/* View mode toggle */}
+      <div style={{ position:"relative", zIndex:20, display:"flex", justifyContent:"center", gap:6, padding: sm ? "10px 0 4px" : "12px 0 4px" }}>
+        {[["carousel", "◱ CAROUSEL"], ["grid", "⊞ GRID"]].map(([mode, label]) => (
+          <button key={mode} onClick={() => setViewMode(mode)} style={{
+            padding: sm ? "5px 14px" : "6px 18px",
+            borderRadius: 20,
+            border: `1.5px solid ${viewMode === mode ? "#d4af37" : "rgba(255,255,255,0.15)"}`,
+            background: viewMode === mode ? "rgba(212,175,55,0.15)" : "transparent",
+            color: viewMode === mode ? "#d4af37" : "rgba(255,255,255,0.4)",
+            fontSize: sm ? 10 : 11,
+            fontWeight: "700",
+            letterSpacing: 2,
+            cursor: "pointer",
+            transition: "all 0.2s",
+            fontFamily: "'Arial Black', sans-serif",
+          }}>{label}</button>
         ))}
       </div>
 
-      {/* Gold line */}
-      <div style={{ position:"relative", zIndex:20, height:2, background:"linear-gradient(90deg,transparent,#d4af37 20%,#d4af37 80%,transparent)", margin:"5px 0" }}/>
+      {/* ── CAROUSEL MODE ─────────────────────────────────────────────────────── */}
+      {viewMode === "carousel" && (<>
+        <div
+          style={{ position:"relative", zIndex:10, flex:1, display:"flex", alignItems:"center", justifyContent:"center", minHeight: xs ? 290 : sm ? 318 : md ? 378 : lg ? 432 : 404, marginTop: xs ? 4 : 8 }}
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
+        >
+          <button onClick={prev} style={{
+            position:"absolute", left: `calc(50% - ${Math.round(cardW * 0.5 + (xs || sm ? 44 : 56))}px)`, zIndex:30,
+            background:"rgba(0,0,0,0.55)", border:"1.5px solid rgba(212,175,55,0.6)",
+            borderRadius:6, width: xs ? 26 : sm ? 30 : lg ? 40 : 36, height: xs ? 32 : sm ? 38 : lg ? 50 : 46, cursor:"pointer",
+            color:"#d4af37", fontSize: xs ? 14 : sm ? 16 : lg ? 22 : 20, display:"flex", alignItems:"center", justifyContent:"center",
+          }}>&#9664;</button>
 
-      {/* Bottom info bar */}
-      <div style={{ position:"relative", zIndex:20, padding: sm ? "8px 14px 18px" : "10px 28px 22px", display:"flex", alignItems:"flex-start", gap: sm ? 10 : 16 }}>
-        <div style={{ flex:1 }}>
-          <p style={{ margin:"0 0 4px", fontSize: sm ? 12 : 14, fontWeight:"700", color:cfg.accent, letterSpacing:2, textTransform:"uppercase" }}>
-            {FLAG[p.nationality]||"🌍"} {p.name} · {p.sport} {cfg.emoji} · {p.tier}
-          </p>
-          <p style={{ margin:"0 0 7px", fontSize: sm ? 12 : 14, color:"rgba(255,255,255,0.65)", lineHeight:1.55, maxWidth:640 }}>
-            {sm ? (p.bio || "").slice(0, 100) + ((p.bio||"").length > 100 ? "…" : "") : p.bio}
-          </p>
-          <div style={{ display:"flex", flexWrap:"wrap", gap: sm ? 8 : 10, marginBottom:6 }}>
-            {p.ig  > 0 && <span style={{ fontSize: sm ? 11 : 13, color:"rgba(255,255,255,0.45)" }}>📸 {fmt(p.ig)}</span>}
-            {p.tt  > 0 && <span style={{ fontSize: sm ? 11 : 13, color:"rgba(255,255,255,0.45)" }}>🎵 {fmt(p.tt)}</span>}
-            {p.yt  > 0 && <span style={{ fontSize: sm ? 11 : 13, color:"rgba(255,255,255,0.45)" }}>▶️ {fmt(p.yt)}</span>}
-            {p.fb  > 0 && <span style={{ fontSize: sm ? 11 : 13, color:"rgba(255,255,255,0.45)" }}>📘 {fmt(p.fb)}</span>}
-            <span style={{ fontSize: sm ? 11 : 13, color:TCOL[p.trend_dir] }}>📈 {p.trend} {TDIR[p.trend_dir]}</span>
-            {!sm && p.market_value > 0 && <span style={{ fontSize:13, color:"rgba(255,255,255,0.45)" }}>${p.market_value}M value</span>}
-          </div>
-          <div style={{ display:"flex", flexWrap:"wrap", gap:5 }}>
-            {pSponsors.length > 0
-              ? pSponsors.map(s => <span key={s} style={{ fontSize: sm ? 9 : 11, fontWeight:"700", padding:"2px 9px", borderRadius:4, background:`${cfg.dim}44`, border:`0.5px solid ${cfg.accent}66`, color:"rgba(255,255,255,0.85)" }}>{s}</span>)
-              : <span style={{ fontSize: sm ? 9 : 11, color:"rgba(255,255,255,0.25)", fontStyle:"italic" }}>Sponsor data unavailable</span>
-            }
+          {visibleOffsets.map(offset => (
+            <SportCard
+              key={offset}
+              p={getPlayer(offset)}
+              position={offset}
+              cardW={cardW} cardH={cardH} imgH={imgH} xs={xs} sm={sm} lg={lg}
+              onCardClick={offset === 0 ? () => openProfile(safeIdx) : undefined}
+            />
+          ))}
+
+          <button onClick={next} style={{
+            position:"absolute", right: `calc(50% - ${Math.round(cardW * 0.5 + (xs || sm ? 44 : 56))}px)`, zIndex:30,
+            background:"rgba(0,0,0,0.55)", border:"1.5px solid rgba(212,175,55,0.6)",
+            borderRadius:6, width: xs ? 26 : sm ? 30 : lg ? 40 : 36, height: xs ? 32 : sm ? 38 : lg ? 50 : 46, cursor:"pointer",
+            color:"#d4af37", fontSize: xs ? 14 : sm ? 16 : lg ? 22 : 20, display:"flex", alignItems:"center", justifyContent:"center",
+          }}>&#9654;</button>
+        </div>
+
+        {/* Number counter */}
+        <div style={{ position:"relative", zIndex:20, textAlign:"center", marginBottom:4, marginTop:2 }}>
+          <span style={{ fontSize: xs ? 17 : sm ? 20 : lg ? 30 : 26, fontWeight:"900", color:"rgba(255,255,255,0.5)", letterSpacing:4, fontFamily:"'Arial Black',sans-serif" }}>
+            {String(safeIdx + 1).padStart(2, "0")}
+            <span style={{ color:"#d4af37", margin:"0 8px" }}>/</span>
+            {String(n).padStart(2, "0")}
+          </span>
+        </div>
+
+        {/* Labels */}
+        <div style={{ position:"relative", zIndex:20, textAlign:"center", paddingBottom:4 }}>
+          {["SOCIAL STATS", "BRAND PROFILE"].map(label => (
+            <p key={label} style={{ margin:"3px 0", fontSize: xs ? 9 : sm ? 11 : lg ? 14 : 13, letterSpacing:3, color:"rgba(255,255,255,0.5)", cursor:"pointer", transition:"color 0.2s" }}
+              onMouseEnter={e => e.target.style.color="#fff"} onMouseLeave={e => e.target.style.color="rgba(255,255,255,0.5)"}>
+              {label}
+            </p>
+          ))}
+        </div>
+
+        {/* Gold line */}
+        <div style={{ position:"relative", zIndex:20, height:2, background:"linear-gradient(90deg,transparent,#d4af37 20%,#d4af37 80%,transparent)", margin:"5px 0" }}/>
+
+        {/* Bottom info bar */}
+        <div style={{ position:"relative", zIndex:20, padding: xs ? "7px 12px 16px" : sm ? "8px 14px 18px" : lg ? "12px 48px 28px" : "10px 28px 22px", display:"flex", alignItems:"flex-start", gap: xs ? 8 : sm ? 10 : 16 }}>
+          <div style={{ flex:1 }}>
+            <p style={{ margin:"0 0 4px", fontSize: xs ? 10 : sm ? 12 : lg ? 15 : 14, fontWeight:"700", color:cfg.accent, letterSpacing:2, textTransform:"uppercase" }}>
+              {FLAG[p.nationality]||"🌍"} {p.name} · {p.sport} {cfg.emoji} · {p.tier}
+            </p>
+            <p style={{ margin:"0 0 7px", fontSize: xs ? 10 : sm ? 12 : lg ? 15 : 14, color:"rgba(255,255,255,0.65)", lineHeight:1.55, maxWidth: lg ? 840 : 640 }}>
+              {(xs || sm) ? (p.bio || "").slice(0, xs ? 80 : 100) + ((p.bio||"").length > (xs ? 80 : 100) ? "…" : "") : p.bio}
+            </p>
+            <div style={{ display:"flex", flexWrap:"wrap", gap: xs ? 6 : sm ? 8 : 10, marginBottom:6 }}>
+              {p.ig  > 0 && <span style={{ fontSize: xs ? 10 : sm ? 11 : lg ? 14 : 13, color:"rgba(255,255,255,0.45)" }}>📸 {fmt(p.ig)}</span>}
+              {p.tt  > 0 && <span style={{ fontSize: xs ? 10 : sm ? 11 : lg ? 14 : 13, color:"rgba(255,255,255,0.45)" }}>🎵 {fmt(p.tt)}</span>}
+              {p.yt  > 0 && <span style={{ fontSize: xs ? 10 : sm ? 11 : lg ? 14 : 13, color:"rgba(255,255,255,0.45)" }}>▶️ {fmt(p.yt)}</span>}
+              {p.fb  > 0 && <span style={{ fontSize: xs ? 10 : sm ? 11 : lg ? 14 : 13, color:"rgba(255,255,255,0.45)" }}>📘 {fmt(p.fb)}</span>}
+              <span style={{ fontSize: xs ? 10 : sm ? 11 : lg ? 14 : 13, color:TCOL[p.trend_dir] }}>📈 {p.trend} {TDIR[p.trend_dir]}</span>
+              {!sm && p.market_value > 0 && <span style={{ fontSize: lg ? 14 : 13, color:"rgba(255,255,255,0.45)" }}>${p.market_value}M value</span>}
+            </div>
+            <div style={{ display:"flex", flexWrap:"wrap", gap:5 }}>
+              {pSponsors.length > 0
+                ? pSponsors.map(s => <span key={s} style={{ fontSize: xs ? 8 : sm ? 9 : lg ? 12 : 11, fontWeight:"700", padding: xs ? "2px 7px" : "2px 9px", borderRadius:4, background:`${cfg.dim}44`, border:`0.5px solid ${cfg.accent}66`, color:"rgba(255,255,255,0.85)" }}>{s}</span>)
+                : <span style={{ fontSize: xs ? 8 : sm ? 9 : 11, color:"rgba(255,255,255,0.25)", fontStyle:"italic" }}>Sponsor data unavailable</span>
+              }
+            </div>
           </div>
         </div>
-      </div>
+      </>)}
+
+      {/* ── GRID MODE ─────────────────────────────────────────────────────────── */}
+      {viewMode === "grid" && (
+        <div style={{
+          position:"relative", zIndex:10, flex:1, overflowY:"auto",
+          padding: xs ? "8px 10px 20px" : sm ? "10px 12px 24px" : lg ? "18px 32px 40px" : "14px 24px 32px",
+          display:"grid",
+          gridTemplateColumns: xs ? "repeat(2,1fr)" : sm ? "repeat(2,1fr)" : md ? "repeat(3,1fr)" : lg ? "repeat(5,1fr)" : "repeat(4,1fr)",
+          gap: xs ? 8 : sm ? 10 : lg ? 16 : 14,
+          alignContent:"start",
+        }}>
+          {players.map((pl, i) => (
+            <GridCard
+              key={pl.slug || pl.name}
+              p={pl}
+              xs={xs} sm={sm} lg={lg}
+              isActive={i === safeIdx}
+              onClick={() => openProfile(i)}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Profile page */}
+      {profileIdx !== null && (
+        <ProfilePage
+          p={players[profileIdx]}
+          allPlayers={players}
+          profileIdx={profileIdx}
+          onNavigate={navProfile}
+          onClose={closeProfile}
+          xs={xs} sm={sm} lg={lg}
+        />
+      )}
 
       {/* Info overlay */}
       {showInfo && (
