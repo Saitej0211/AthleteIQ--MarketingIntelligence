@@ -1,0 +1,11 @@
+rank,name,sport,team,nationality,position,wikipedia_slug,slug
+1,Max Verstappen,formula1,Red Bull Racing,Dutch,Driver,Max_Verstappen,max_verstappen
+2,Lewis Hamilton,formula1,Ferrari,British,Driver,Lewis_Hamilton,lewis_hamilton
+3,Charles Leclerc,formula1,Ferrari,Monégasque,Driver,Charles_Leclerc,charles_leclerc
+4,Lando Norris,formula1,McLaren,British,Driver,Lando_Norris,lando_norris
+5,Carlos Sainz,formula1,Williams,Spanish,Driver,Carlos_Sainz_Jr.,carlos_sainz
+6,Fernando Alonso,formula1,Aston Martin,Spanish,Driver,Fernando_Alonso,fernando_alonso
+7,George Russell,formula1,Mercedes,British,Driver,George_Russell_(racing_driver),george_russell
+8,Sergio Pérez,formula1,Red Bull Racing,Mexican,Driver,Sergio_Pérez,sergio_pérez
+9,Oscar Piastri,formula1,McLaren,Australian,Driver,Oscar_Piastri,oscar_piastri
+10,Nico Hülkenberg,formula1,Haas,German,Driver,Nico_Hülkenberg,nico_hülkenberg

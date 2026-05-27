@@ -215,3 +215,105 @@ Engagement quality is weighted highest because it is the metric brands actually 
 Most sports data products are built for coaches and scouts — they care about on-field performance. Most social media tools are built for influencer marketing — they do not understand athletic context. This product sits in the gap between both worlds, speaking the language of brand marketing while being grounded in sports data.
 
 The brand fit reasoning engine powered by LangChain is the feature that no spreadsheet or existing tool can replicate — it does not just show you numbers, it tells you what they mean for a specific business decision.
+
+---
+
+## Backend — Project Structure
+
+```
+AthleteIQ-MarketingIntelligence/
+├── main.py                          # CLI entry point
+├── requirements.txt
+├── .env.example                     # API key template
+│
+├── config/
+│   └── settings.py                  # Paths, API keys, seed athlete lists, score weights
+│
+├── scrapers/
+│   ├── master_list_scraper.py       # Stage 1 — builds top-10 CSVs per sport
+│   ├── athletic_profile_scraper.py  # Stage 2 — Wikipedia bio + Transfermarkt value
+│   ├── trends_scraper.py            # Stage 4 — Google Trends via Pytrends
+│   ├── sponsorship_scraper.py       # Stage 5 — seed deals + Wikipedia endorsements
+│   └── social_media/
+│       ├── instagram_scraper.py     # Stage 3a — Instaloader
+│       ├── facebook_scraper.py      # Stage 3b — Facebook Graph API
+│       ├── tiktok_scraper.py        # Stage 3c — TikTok Research API v2
+│       └── youtube_scraper.py       # Stage 3d — YouTube Data API v3
+│
+├── scoring/
+│   └── brand_power_score.py         # Stage 6 — weighted 5-factor score computation
+│
+├── pipeline/
+│   └── pipeline_runner.py           # Orchestrates all stages; parallel social scraping
+│
+├── utils/
+│   └── helpers.py                   # Retry decorator, JSON cache, normalization
+│
+└── data/
+    ├── raw/
+    │   ├── master_lists/            # {sport}_top10.csv
+    │   ├── athlete_profiles/        # {slug}.json  (Wikipedia + Transfermarkt)
+    │   ├── social_media/
+    │   │   ├── instagram/           # {slug}.json
+    │   │   ├── facebook/            # {slug}.json
+    │   │   ├── tiktok/              # {slug}.json
+    │   │   └── youtube/             # {slug}.json
+    │   ├── trends/                  # {slug}.json  (Google Trends weekly series)
+    │   └── sponsorships/            # {slug}.json  (sponsor list + estimated deal value)
+    └── processed/
+        └── {slug}.json              # Final enriched profile (all stages merged + score)
+```
+
+## Backend — Current Coverage
+
+**5 sports × 10 athletes = 50 athletes** in the seed dataset:
+
+| Sport | Athletes |
+|-------|----------|
+| Football | Mbappé, Haaland, Vinícius Jr., Bellingham, Salah, De Bruyne, Pedri, Rodri, Lewandowski, Neymar |
+| Basketball | LeBron, Curry, Giannis, Durant, Jokić, Dončić, Embiid, Tatum, Lillard, Kawhi |
+| Tennis | Djokovic, Alcaraz, Sinner, Medvedev, Zverev, Ruud, Rune, Rublev, Fritz, Sabalenka |
+| Cricket | Kohli, Rohit, Babar, Root, Smith, Cummins, Bumrah, Stokes, Williamson, Shakib |
+| Formula 1 | Verstappen, Hamilton, Leclerc, Norris, Sainz, Alonso, Russell, Pérez, Piastri, Hülkenberg |
+
+## Backend — Quickstart
+
+```bash
+# 1. Install dependencies
+pip install -r requirements.txt
+
+# 2. Copy and fill in your API keys
+cp .env.example .env
+
+# 3. Run the full pipeline (all sports)
+python main.py
+
+# 4. Run a single sport
+python main.py --sport football
+
+# 5. Run a single athlete
+python main.py --sport basketball --athlete "LeBron James"
+```
+
+**Required API keys** (only for the platforms you want to enrich):
+
+| Key | Where to get it |
+|-----|----------------|
+| `YOUTUBE_API_KEY` | [Google Cloud Console](https://console.cloud.google.com) → YouTube Data API v3 |
+| `FACEBOOK_ACCESS_TOKEN` | [Meta for Developers](https://developers.facebook.com) → Graph API Explorer |
+| `TIKTOK_CLIENT_KEY` + `TIKTOK_CLIENT_SECRET` | [TikTok for Developers](https://developers.tiktok.com) → Research API |
+| `ANTHROPIC_API_KEY` | [Anthropic Console](https://console.anthropic.com) |
+
+Instagram (Instaloader) works without credentials for public profiles.
+Google Trends (Pytrends) requires no API key.
+Sponsorship seed data is baked in — no API required for the baseline.
+
+## Backend — Caching Strategy
+
+Every scraping call writes its result to a local JSON file before returning. On subsequent runs, the cached file is returned immediately without hitting any external API. This means:
+
+- Re-running the pipeline is free and instant for already-scraped athletes
+- Individual stages can be re-run independently
+- The `data/processed/{slug}.json` file is the single source of truth for the frontend
+
+Delete a cache file to force a re-scrape of that athlete and stage.

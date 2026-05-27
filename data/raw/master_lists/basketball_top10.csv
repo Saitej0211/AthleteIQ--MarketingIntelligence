@@ -1,0 +1,11 @@
+rank,name,sport,team,nationality,position,wikipedia_slug,slug
+1,LeBron James,basketball,Los Angeles Lakers,American,Forward,LeBron_James,lebron_james
+2,Stephen Curry,basketball,Golden State Warriors,American,Guard,Stephen_Curry,stephen_curry
+3,Giannis Antetokounmpo,basketball,Milwaukee Bucks,Greek,Forward,Giannis_Antetokounmpo,giannis_antetokounmpo
+4,Kevin Durant,basketball,Phoenix Suns,American,Forward,Kevin_Durant,kevin_durant
+5,Nikola Jokić,basketball,Denver Nuggets,Serbian,Center,Nikola_Jokić,nikola_jokić
+6,Luka Dončić,basketball,Dallas Mavericks,Slovenian,Guard,Luka_Dončić,luka_dončić
+7,Joel Embiid,basketball,Philadelphia 76ers,Cameroonian,Center,Joel_Embiid,joel_embiid
+8,Jayson Tatum,basketball,Boston Celtics,American,Forward,Jayson_Tatum,jayson_tatum
+9,Damian Lillard,basketball,Milwaukee Bucks,American,Guard,Damian_Lillard,damian_lillard
+10,Kawhi Leonard,basketball,LA Clippers,American,Forward,Kawhi_Leonard,kawhi_leonard

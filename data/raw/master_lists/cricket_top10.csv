@@ -1,0 +1,11 @@
+rank,name,sport,team,nationality,position,wikipedia_slug,slug
+1,Virat Kohli,cricket,India,Indian,Batsman,Virat_Kohli,virat_kohli
+2,Rohit Sharma,cricket,India,Indian,Batsman,Rohit_Sharma,rohit_sharma
+3,Babar Azam,cricket,Pakistan,Pakistani,Batsman,Babar_Azam,babar_azam
+4,Joe Root,cricket,England,English,Batsman,Joe_Root,joe_root
+5,Steve Smith,cricket,Australia,Australian,Batsman,Steve_Smith_(cricketer),steve_smith
+6,Pat Cummins,cricket,Australia,Australian,Bowler,Pat_Cummins,pat_cummins
+7,Jasprit Bumrah,cricket,India,Indian,Bowler,Jasprit_Bumrah,jasprit_bumrah
+8,Ben Stokes,cricket,England,English,All-rounder,Ben_Stokes,ben_stokes
+9,Kane Williamson,cricket,New Zealand,New Zealander,Batsman,Kane_Williamson,kane_williamson
+10,Shakib Al Hasan,cricket,Bangladesh,Bangladeshi,All-rounder,Shakib_Al_Hasan,shakib_al_hasan

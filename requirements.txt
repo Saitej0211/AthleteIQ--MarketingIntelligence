@@ -1,0 +1,40 @@
+# Core
+requests==2.31.0
+beautifulsoup4==4.12.3
+pandas==2.2.2
+numpy==1.26.4
+python-dotenv==1.0.1
+tqdm==4.66.4
+tenacity==8.3.0
+
+# Social Media
+instaloader==4.10.3
+google-api-python-client==2.130.0
+
+# Trends
+pytrends==4.9.2
+
+# Caching & Storage
+sqlitedict==2.1.0
+
+# Async
+aiohttp==3.9.5
+aiofiles==23.2.1
+
+# LangChain / AI (Stage 7-8)
+langchain==0.2.5
+langchain-community==0.2.5
+langchain-openai==0.1.8
+anthropic==0.29.0
+faiss-cpu==1.8.0
+chromadb==0.5.3
+
+# Backend API (Stage 9)
+fastapi==0.111.0
+uvicorn==0.30.1
+
+# Export
+reportlab==4.2.0
+
+# Visualization
+plotly==5.22.0
