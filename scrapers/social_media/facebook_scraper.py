@@ -1,114 +1,139 @@
 """
-Stage 3b — Facebook Graph API Scraper
+Stage 3b — Facebook Public Page Scraper
 
-Pulls per-athlete Facebook page data:
-  - page fan count (followers)
+Scrapes publicly visible data from Facebook pages without any API key,
+using mbasic.facebook.com (Facebook's lightweight HTML version) which
+renders without JavaScript and is accessible without authentication.
+
+Collected fields:
+  - followers / fans count
   - page category
-  - top geographic region (from page insights, if token has ads_read scope)
-  - engagement summary
+  - top region (where available in page About section)
 
-Requires FACEBOOK_ACCESS_TOKEN in .env with pages_read_engagement permission.
-Falls back gracefully when the token is absent or a page is not found.
+No credentials required. Rate-limited to avoid blocks.
 """
 
 import logging
+import re
 import time
 
 import requests
+from bs4 import BeautifulSoup
 
-from config.settings import FACEBOOK_ACCESS_TOKEN, SOCIAL_DIR, REQUEST_DELAY
-from utils.helpers import save_json, load_json
+from config.settings import SOCIAL_DIR, REQUEST_DELAY, MAX_RETRIES, HEADERS
+from utils.helpers import save_json, load_json, get_retry_decorator
 
 logger = logging.getLogger(__name__)
+_retry = get_retry_decorator(MAX_RETRIES)
 
 CACHE_SUBDIR = SOCIAL_DIR / "facebook"
 CACHE_SUBDIR.mkdir(parents=True, exist_ok=True)
 
-GRAPH_API_BASE = "https://graph.facebook.com/v19.0"
+MBASIC_URL = "https://mbasic.facebook.com/{handle}"
+MBASIC_ABOUT_URL = "https://mbasic.facebook.com/{handle}/about"
 
-# Known Facebook page IDs or usernames for seed athletes
+SCRAPE_HEADERS = {
+    **HEADERS,
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.5",
+}
+
+# Known public Facebook page handles for seed athletes
 FACEBOOK_PAGES: dict[str, str] = {
-    "kylian_mbappe":         "KMbappe",
-    "erling_haaland":        "ErlingHaalandOfficial",
-    "vinicius_junior":       "ViniciusJuniorOficial",
-    "jude_bellingham":       "JudeBellingham",
-    "mohamed_salah":         "MohamedSalah",
-    "kevin_de_bruyne":       "KevinDeBruyne",
-    "lebron_james":          "LeBronJames",
-    "stephen_curry":         "StephenCurry",
-    "giannis_antetokounmpo": "Giannis34Antetekoumpo",
-    "novak_djokovic":        "novakdjokovic",
-    "virat_kohli":           "virat.kohli",
-    "rohit_sharma":          "rohitsharma45",
-    "max_verstappen":        "MaxVerstappen33",
-    "lewis_hamilton":        "LewisHamilton",
-    "charles_leclerc":       "CharlesLeclerc",
-    "lando_norris":          "LandoNorris",
+    "kylian_mbappe":          "kylianmbappe",
+    "erling_haaland":         "ErlingHaalandOfficial",
+    "vinicius_junior":        "ViniciusJuniorOficial",
+    "jude_bellingham":        "judebellingham",
+    "mohamed_salah":          "MohamedSalah",
+    "kevin_de_bruyne":        "KevinDeBruyne",
+    "pedri":                  "pedri",
+    "robert_lewandowski":     "Lewandowski9",
+    "neymar_jr":              "neymarjr",
+    "lebron_james":           "LeBronJames",
+    "stephen_curry":          "stephencurry30",
+    "giannis_antetokounmpo":  "Giannis34Antetekoumpo",
+    "kevin_durant":           "KevinDurant",
+    "nikola_jokic":           "NikolaJokic15",
+    "luka_doncic":            "lukadoncic77",
+    "joel_embiid":            "JoelEmbiid",
+    "jayson_tatum":           "JaysonTatum0",
+    "novak_djokovic":         "novakdjokovic",
+    "carlos_alcaraz":         "carlitosalcarazz",
+    "jannik_sinner":          "JannikSinner",
+    "virat_kohli":            "virat.kohli",
+    "rohit_sharma":           "rohitsharma45",
+    "babar_azam":             "babarazam258",
+    "ben_stokes":             "BenStokes38",
+    "max_verstappen":         "maxverstappen1",
+    "lewis_hamilton":         "LewisHamilton",
+    "charles_leclerc":        "charles.leclerc",
+    "lando_norris":           "LandoNorrisOfficial",
+    "carlos_sainz":           "carlossainz55",
+    "fernando_alonso":        "fernandoalonso",
 }
 
 
-def _graph_get(endpoint: str, params: dict) -> dict:
-    if not FACEBOOK_ACCESS_TOKEN:
-        raise EnvironmentError("FACEBOOK_ACCESS_TOKEN not set in .env")
-    params["access_token"] = FACEBOOK_ACCESS_TOKEN
-    resp = requests.get(f"{GRAPH_API_BASE}/{endpoint}", params=params, timeout=15)
+def _parse_count(text: str) -> int | None:
+    """Parse follower/like counts like '12.5M', '1,234,567', '890K'."""
+    text = text.strip().replace(",", "")
+    m = re.search(r"([\d.]+)\s*([MmKkBb]?)", text)
+    if not m:
+        return None
+    num = float(m.group(1))
+    suffix = m.group(2).upper()
+    if suffix == "M":
+        return int(num * 1_000_000)
+    if suffix == "K":
+        return int(num * 1_000)
+    if suffix == "B":
+        return int(num * 1_000_000_000)
+    return int(num)
+
+
+@_retry
+def _fetch_page(url: str) -> BeautifulSoup | None:
+    resp = requests.get(url, headers=SCRAPE_HEADERS, timeout=20, allow_redirects=True)
+    if resp.status_code == 404:
+        return None
     resp.raise_for_status()
-    return resp.json()
+    # If redirected to login page, return None gracefully
+    if "login" in resp.url or "checkpoint" in resp.url:
+        logger.debug(f"Redirected to login for {url}")
+        return None
+    return BeautifulSoup(resp.text, "html.parser")
 
 
-def _fetch_page_info(page_id: str) -> dict:
-    try:
-        data = _graph_get(
-            page_id,
-            {"fields": "name,fan_count,followers_count,category,verification_status"},
-        )
-        return {
-            "page_id":             page_id,
-            "page_name":           data.get("name", ""),
-            "fans":                data.get("fan_count", 0),
-            "followers":           data.get("followers_count", data.get("fan_count", 0)),
-            "category":            data.get("category", ""),
-            "is_verified":         data.get("verification_status") == "verified",
-        }
-    except Exception as e:
-        logger.warning(f"Facebook page info failed for {page_id}: {e}")
-        return {}
+def _extract_followers(soup: BeautifulSoup) -> int | None:
+    text = soup.get_text(" ", strip=True)
 
-
-def _fetch_page_insights(page_id: str) -> dict:
-    metrics = [
-        "page_impressions_unique",
-        "page_post_engagements",
-        "page_fans_country",
+    # Patterns seen on mbasic Facebook pages
+    patterns = [
+        r"([\d,. ]+[MmKk]?)\s+people follow this",
+        r"([\d,. ]+[MmKk]?)\s+followers",
+        r"([\d,. ]+[MmKk]?)\s+Followers",
+        r"([\d,. ]+[MmKk]?)\s+people like this",
+        r"([\d,. ]+[MmKk]?)\s+likes",
     ]
-    try:
-        data = _graph_get(
-            f"{page_id}/insights",
-            {
-                "metric": ",".join(metrics),
-                "period": "month",
-            },
-        )
-        insights = {}
-        for item in data.get("data", []):
-            name = item.get("name")
-            values = item.get("values", [])
-            if values:
-                insights[name] = values[-1].get("value")
+    for pattern in patterns:
+        m = re.search(pattern, text)
+        if m:
+            count = _parse_count(m.group(1))
+            if count and count > 100:
+                return count
+    return None
 
-        country_data = insights.get("page_fans_country", {})
-        top_region = (
-            max(country_data, key=country_data.get) if country_data else None
-        )
-        return {
-            "monthly_impressions_unique": insights.get("page_impressions_unique"),
-            "monthly_post_engagements":   insights.get("page_post_engagements"),
-            "top_region":                 top_region,
-            "fans_by_country":            country_data,
-        }
-    except Exception as e:
-        logger.debug(f"Facebook insights unavailable for {page_id} (may need ads_read scope): {e}")
-        return {}
+
+def _extract_category(soup: BeautifulSoup) -> str:
+    text = soup.get_text(" ", strip=True)
+    # Category often appears near "Public Figure", "Athlete", "Sports Team" etc.
+    categories = [
+        "Athlete", "Public Figure", "Sports Team", "Sports League",
+        "Sports & Recreation", "Entertainer", "Musician", "Actor",
+    ]
+    for cat in categories:
+        if cat.lower() in text.lower():
+            return cat
+    return ""
 
 
 def scrape_facebook(athlete_name: str, athlete_slug: str) -> dict:
@@ -118,28 +143,42 @@ def scrape_facebook(athlete_name: str, athlete_slug: str) -> dict:
         logger.info(f"[facebook cache] {athlete_name}")
         return cached
 
-    logger.info(f"[facebook] {athlete_name}")
-    result: dict = {"platform": "facebook", "athlete": athlete_name, "available": False}
-
-    page_id = FACEBOOK_PAGES.get(athlete_slug)
-    if not page_id:
-        logger.warning(f"No Facebook page configured for {athlete_name}")
+    handle = FACEBOOK_PAGES.get(athlete_slug)
+    if not handle:
+        logger.warning(f"No Facebook handle configured for {athlete_name} ({athlete_slug})")
+        result = {"platform": "facebook", "athlete": athlete_name, "available": False}
         save_json(result, cache_path)
         return result
 
-    if not FACEBOOK_ACCESS_TOKEN:
-        logger.warning("FACEBOOK_ACCESS_TOKEN not configured — skipping Facebook scrape")
-        save_json(result, cache_path)
-        return result
+    logger.info(f"[facebook] {athlete_name} → fb/{handle}")
+    result: dict = {"platform": "facebook", "athlete": athlete_name, "handle": handle, "available": False}
 
     try:
-        page_info = _fetch_page_info(page_id)
+        soup = _fetch_page(MBASIC_URL.format(handle=handle))
         time.sleep(REQUEST_DELAY)
-        insights = _fetch_page_insights(page_id)
 
-        result.update(page_info)
-        result.update(insights)
-        result["available"] = bool(page_info)
+        if soup is None:
+            logger.warning(f"Facebook page not accessible for {athlete_name}")
+            save_json(result, cache_path)
+            return result
+
+        followers = _extract_followers(soup)
+
+        # Try the /about page if followers not found on main page
+        if followers is None:
+            about_soup = _fetch_page(MBASIC_ABOUT_URL.format(handle=handle))
+            time.sleep(REQUEST_DELAY)
+            if about_soup:
+                followers = _extract_followers(about_soup)
+
+        category = _extract_category(soup)
+
+        result.update({
+            "followers": followers or 0,
+            "category":  category,
+            "available": followers is not None,
+            "source":    "mbasic.facebook.com",
+        })
 
     except Exception as e:
         logger.error(f"Facebook scrape failed for {athlete_name}: {e}")

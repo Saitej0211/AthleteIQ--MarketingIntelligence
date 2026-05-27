@@ -8,11 +8,12 @@ Usage:
 
 Stages:
   1. Master list   (always fast — seed data)
-  2. Athletic profiles  (Wikipedia + Transfermarkt)
-  3. Social media       (Instagram, YouTube, TikTok, Facebook — parallel)
+  2. Athletic profiles  (Wikipedia + Transfermarkt + photo download)
+  3. Social media       (Instagram, YouTube — parallel)
   4. Google Trends
   5. Sponsorships
   6. Brand Power Score computation → writes final enriched JSON
+  7. ChromaDB vector store ingestion
 """
 
 import argparse
@@ -44,15 +45,11 @@ def _run_stage2(athlete_row: dict) -> dict:
 def _run_social_media(athlete_name: str, slug: str) -> dict:
     from scrapers.social_media.instagram_scraper import scrape_instagram
     from scrapers.social_media.youtube_scraper   import scrape_youtube
-    from scrapers.social_media.tiktok_scraper    import scrape_tiktok
-    from scrapers.social_media.facebook_scraper  import scrape_facebook
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
         futures = {
             "instagram": pool.submit(scrape_instagram, athlete_name, slug),
             "youtube":   pool.submit(scrape_youtube,   athlete_name, slug),
-            "tiktok":    pool.submit(scrape_tiktok,    athlete_name, slug),
-            "facebook":  pool.submit(scrape_facebook,  athlete_name, slug),
         }
         return {k: f.result() for k, f in futures.items()}
 
@@ -139,6 +136,17 @@ def run_all_sports() -> dict[str, list[dict]]:
         logger.info(f"  SPORT: {sport.upper()}")
         logger.info(f"{'='*50}")
         results[sport] = run_sport(sport)
+
+    # Stage 7 — ingest all processed profiles into ChromaDB
+    logger.info("\n--- Stage 7: ChromaDB vector store ingestion ---")
+    try:
+        from vector_store.chroma_store import AthleteVectorStore
+        store = AthleteVectorStore()
+        n = store.ingest_all()
+        logger.info(f"ChromaDB: {n} athletes indexed")
+    except Exception as e:
+        logger.error(f"ChromaDB ingestion failed: {e}")
+
     return results
 
 
