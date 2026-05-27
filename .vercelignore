@@ -1,0 +1,14 @@
+# Hide Python pipeline files from Vercel — prevents Python/FastAPI auto-detection
+main.py
+requirements.txt
+pipeline/
+scrapers/
+scoring/
+utils/
+scripts/
+airflow/
+config/
+data/
+vector_store/
+setup_airflow.sh
+start_airflow.sh
